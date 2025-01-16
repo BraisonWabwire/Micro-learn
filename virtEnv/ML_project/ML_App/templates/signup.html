@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content%}
+{% load static %}
+<body>
+<div class="container">
+    <div class="inner-container1">
+        <img src="{% static 'images/1106.jpg' %}" alt="" srcset="" class="inner-container1">
+        <div class="home"><a href="{% url 'homepage' %}">Back to homepage</a> <i class="ph ph-arrow-right"></i></div>
+        <h2>The fountain of achievements</h2>
+    </div>
+    <div class="inner-container2">
+            <form action="" method="POST">
+                {% csrf_token %}
+                <h1>Create an account</h1>
+            <p>Already have an account? <a href="{% url 'login' %}">Login</a><p>
+            <div class="names">
+                {{ form.first_name }}
+                {{ form.last_name }}
+            </div>
+            {{ form.username }}
+            {{ form.email }}
+            {{ form.password1 }}
+            {{ form.password2 }}
+                <label>
+                    <P> <input type="checkbox"> I Agree to the <a href="#"> Terms and Conditions</a> </P>
+                </label>
+            <button type="submit">Create account</button>
+            </form>
+    </div>
+</div>
+<body>
+{% endblock content %}
