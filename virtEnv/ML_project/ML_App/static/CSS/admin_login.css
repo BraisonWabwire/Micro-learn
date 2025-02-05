@@ -103,7 +103,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-
+    width: 200px;
 }
 
 .inner-container2 form input {
@@ -115,20 +115,14 @@ body {
     color: white;
     outline: none;
     font-size: 12px;
+    
 }
 
 .inner-container2 form input:focus {
     border: 1.5px solid #7ac4ff;
 }
 
-.inner-container2 form P {
-    color: white;
-    display: flex;
-    align-items: center;
-    font-size: 14px;
-    letter-spacing: 0.4px;
-    font-family: "Lato", serif;
-}
+
 
 input[type="checkbox"] {
     margin-right: 10px;

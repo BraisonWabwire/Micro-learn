@@ -1,10 +1,9 @@
-from django.contrib.auth.forms import UserCreationForm
 from django import forms
-from django.contrib.auth.models import User
 from django.forms.widgets import PasswordInput
-from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+
+
 
 class SignupForm(UserCreationForm):
     def __init__(self, *args, **kwargs):
@@ -23,3 +22,4 @@ class SignupForm(UserCreationForm):
             'email': forms.EmailInput(attrs={'placeholder': 'Email'}),
             # The placeholders for password fields are set in the __init__ method now
         }
+

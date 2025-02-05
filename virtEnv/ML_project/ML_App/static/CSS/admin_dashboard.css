@@ -1,0 +1,234 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+}
+
+body {
+    background-color: #f2f2f2;
+    display: flex;
+    height: 100vh;
+}
+
+.left-nav {
+    width: 20%;
+    height: 100vh;
+    background-color: #152238;
+}
+
+.subnav1 {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 20vh;
+    border-bottom: 1px solid rgba(254, 251, 251, 0.2);
+    gap: 1rem;
+}
+
+.subnav1 h2 {
+    font-family: "Inter", serif;
+    font-weight: 400;
+    color: white;
+}
+
+.left-nav .subnav1 .profile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.left-nav .subnav1 .profile img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+.left-nav .subnav1 .username {
+    display: flex;
+    flex-direction: column;
+
+}
+
+.left-nav .subnav1 .username h3 {
+    font-size: 12px;
+    color: white;
+    font-weight: 200;
+    font-family: "Poppins", serif;
+    font-weight: 400;
+    text-align: left;
+}
+
+
+.left-nav .subnav1 .username h4 {
+    font-size: 10px;
+    color: white;
+    font-weight: normal;
+    font-family: "Poppins", serif;
+    font-weight: 200;
+    text-align: left;
+}
+
+.left-nav .subnav1 .profile i {
+    color: white;
+    font-size: 18px;
+}
+
+.subnav2 {
+    padding: 20px;
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    border-bottom: 1px solid rgba(254, 251, 251, 0.2);
+    /* background: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1), rgba(0, 0, 0, 0)); */
+}
+
+.subnav2 h3 {
+    color: white;
+    font-family: "Poppins", serif;
+    font-weight: 300;
+    font-size: 15px;
+
+}
+
+.subnav2 .links {
+    width: 100%;
+    height: 40px;
+    border-radius: 5px;
+    background-color: none;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 20px;
+    gap: 15px;
+    transition: background-color 0.3s ease;
+
+}
+
+.subnav2 .links a {
+    text-decoration: none;
+    color: white;
+    font-family: "Inter", serif;
+    font-size: 13px;
+
+}
+
+.subnav2 .links i {
+    color: white;
+    font-size: 18px;
+}
+
+.subnav2 .links:first-of-type {
+    background-color: rgb(35, 168, 84);
+}
+
+.subnav3{
+    width: 100%;
+    height: 35vh;
+    /* background-color: #f2f2f2; */
+}
+.subnav4{
+    width: 100%;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-top: 1px solid rgba(254, 251, 251, 0.2);;
+}
+.subnav4 a{
+    color: white;
+    font-size: 13px;
+    font-family: "Inter", serif;
+    text-decoration: none;
+}
+.subnav4 i{
+    color: white;
+    font-size: 18px;
+}
+
+/* Content design  */
+.content{
+    width: 80%;
+    height: 100vh;
+    background-color: #f0f8ff;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+.top-bar{
+    width: 100%;
+    height: 8vh;
+    background-color: white;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+}
+.search-bar{
+    width: 300px;
+    height: 30px;
+    border: 2px solid #152238;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 5px;
+    
+}
+.search-bar form{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+}
+.search-bar input{
+    border: none;
+    width: 250px;
+    height: 20px;
+    outline: none;
+    
+}
+.search-bar i{
+    color: #152238;
+}
+.search-bar button{
+    display: none;
+}
+.notification{
+    width: 200px;
+    height: 6vh;
+    /* background-color: aqua; */
+}
+.notification{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+.notification a{
+    text-decoration: none;
+    font-size: 13px;
+    color: white;
+    font-family: "Inter", serif;
+}
+.notification i{
+    color: #152238;
+    font-size: 16px;
+}
+.tutorial{
+    width: 100px;
+    height: 5vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(35, 168, 84);
+    border-radius: 5px;
+
+}

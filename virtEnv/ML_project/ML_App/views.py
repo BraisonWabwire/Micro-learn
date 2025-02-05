@@ -26,7 +26,7 @@ def signup(request):
             if form.is_valid:
                 form.save()
                 user=form.cleaned_data.get('username')
-                messages.success(user + "account created successfully")
+                messages.success(request, user + "account created successfully")
                 return redirect('login')
             
             else:
@@ -59,7 +59,7 @@ def loginUser(request):
                 login(request, user)
                 return redirect('dashbord')
             else:
-                messages.info('incorrect username or password ')
+                messages.error(request,'incorrect username or password ')
 
 
             context={
@@ -71,9 +71,43 @@ def loginUser(request):
 def logoutUser(request):
     logout(request)
     return redirect('login')
+
+
+
 @login_required(login_url='login')
 def dashbord(request):
     context={
         'title':'dashboard',
     }
     return render(request, 'dashbord.html', context)
+
+
+def instructor(request):
+
+    return render(request, 'instructor.html')
+
+def admin_login(request):
+    if request.method == "POST":
+        # Get the submitted username and password
+        username = request.POST['username']
+        password = request.POST['password']
+        
+        # Hardcoded admin credentials
+        if username == "administrator" and password == "admin01":
+            messages.success(request, "Login successful!")
+            return redirect('admin_dashboard')  # Redirect to the admin dashboard or another page
+        else:
+            messages.error(request, "Invalid username or password.")
+    
+    return render(request, 'admin_login.html')
+
+# Log admin out
+def logoutAdmin(request):
+    logout(request)
+    return redirect('admin_login')
+
+
+
+def admin_dashboard(request):
+
+    return render(request, 'admin_dashboard.html')
