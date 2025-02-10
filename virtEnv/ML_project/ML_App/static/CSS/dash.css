@@ -1,7 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@100..900&display=swap');
 * {
     box-sizing: border-box;
     margin: 0;
@@ -129,100 +130,124 @@ body {
     background-color: rgb(35, 168, 84);
 }
 
-.subnav3{
+.subnav3 {
     width: 100%;
     height: 35vh;
     /* background-color: #f2f2f2; */
 }
-.subnav4{
+
+.subnav4 {
     width: 100%;
     padding: 20px;
     display: flex;
     align-items: center;
     gap: 1rem;
-    border-top: 1px solid rgba(254, 251, 251, 0.2);;
+    border-top: 1px solid rgba(254, 251, 251, 0.2);
+    ;
 }
-.subnav4 a{
+
+.subnav4 a {
     color: white;
     font-size: 13px;
     font-family: "Inter", serif;
     text-decoration: none;
 }
-.subnav4 i{
+
+.subnav4 i {
     color: white;
     font-size: 18px;
 }
 
 /* Content design  */
-.content{
+.content {
     width: 80%;
     height: 100vh;
-    background-color: #f0f8ff;
+    background-color: white;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    background-color: #f0f8ff
 }
-.top-bar{
+
+.top-bar {
     width: 100%;
-    height: 8vh;
+    height: auto;
     background-color: white;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
     padding: 20px;
+    border-bottom: 1px solid #bfc5c8;
 }
-.search-bar{
-    width: 300px;
+.top-bar i{
+    font-size: 20px;
+    color: #899096;
+}
+.search-bar {
+    width: 27%;
     height: 30px;
-    border: 2px solid #152238;
+    border: 2px solid #c5ccd2;
     display: flex;
     align-items: center;
     padding: 10px;
     border-radius: 5px;
-    
+
 }
-.search-bar form{
+
+.search-bar form {
     display: flex;
     flex-direction: row;
     align-items: center;
     gap: 0.5rem;
+    width: 100%;
 }
-.search-bar input{
+
+.search-bar input {
     border: none;
-    width: 250px;
+    width: 100%;
     height: 20px;
     outline: none;
-    
+
 }
-.search-bar i{
-    color: #152238;
+
+.search-bar i {
+    color: #c5ccd2;
+    color: #c5ccd2;
 }
-.search-bar button{
+
+.search-bar button {
     display: none;
 }
-.notification{
+
+.notification {
     width: 200px;
     height: 6vh;
     /* background-color: aqua; */
 }
-.notification{
+
+.notification {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 1rem;
 }
-.notification a{
+
+.notification a {
     text-decoration: none;
     font-size: 13px;
     color: white;
     font-family: "Inter", serif;
 }
-.notification i{
-    color: #152238;
+
+.notification i {
+    color: #a3a9ad;
     font-size: 16px;
+
 }
-.tutorial{
+
+.tutorial {
     width: 100px;
     height: 5vh;
     display: flex;
@@ -231,4 +256,175 @@ body {
     background-color: rgb(35, 168, 84);
     border-radius: 5px;
 
+}
+
+
+/* *********Course Overview design******** */
+.course-overview{
+    width: 100%;
+    height: 25vh;
+    background-color: #f0f8ff;
+    
+}
+
+.course-overview h1 {
+    text-align: left;
+    padding-top: 10px;
+    padding-left: 45px;
+    font-family: "Manrope", serif;
+    font-weight: 800;
+    font-size: 18px;
+}
+
+.course-overview .card {
+    width: 100%;
+    height: 20vh;
+    /* background-color: blue; */
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.course-overview .card .overview-card {
+    width: 20%;
+    height: 15vh;
+    background-color: #f0f8ff;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    border: 2px solid rgb(35, 168, 84);
+}
+
+.course-overview .card .overview-card .top-desc {
+    width: 100%;
+    height: 80%;
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 20px;
+    gap: 1rem;
+
+}
+
+.course-overview .card .overview-card .top-desc i{
+  font-size: 35px;
+
+}
+
+.course-overview .card .overview-card .top-desc .desc h2{
+    font-size: 25px;
+    font-family: "Heebo", serif;
+    
+}
+.course-overview .card .overview-card .top-desc .desc h3{
+    font-size: 11px;
+    color: #505355;
+    font-family: "Heebo", serif;
+    margin-top: -10px;
+}
+
+.course-overview .card .overview-card .bottom-desc {
+    width: 100%;
+    height: 20%;
+    border-top: 1px solid rgb(162, 211, 180);
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    display: flex;
+    align-items: center;
+    padding-left: 20px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    padding-right: 30px;
+    justify-content: space-between;
+}
+
+.course-overview .card .overview-card .bottom-desc a {
+    text-decoration: none;
+    color: rgb(35, 168, 84);
+    font-size: 12px;
+    text-transform: capitalize;
+    font-family: "Inter", serif;
+}
+.course-overview .card .overview-card .bottom-desc i{
+    font-size: 20px;
+}
+
+.enrolled-courses{
+    width: 90%;
+    height: 60vh;
+    background-color: white;
+    border-radius: 10px;
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    border: 1px solid red;
+    gap: 15px;
+}
+.enrolled-courses .card{
+    border: 1px solid black;
+}
+
+.courses-in-progress{
+    width: 100%;
+    height: 60vh;
+    /* background-color: #668ac9; */
+    
+}
+.courses-in-progress h2{
+    text-align: left;
+    padding-top: 20px;
+    padding-left: 45px;
+    font-family: "Manrope", serif;
+    font-weight: 800;
+    font-size: 18px;
+}
+.courses-progress-card{
+    width: 100%;
+    height: 55vh;
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(270px,1fr));
+    gap: 15px;
+    place-items: center;
+    /* background-color: #505355; */
+    overflow-x: hidden;
+    padding: 20px;
+    border-top: 1px solid rgba(21, 1, 1, 0.2);
+
+}
+.courses-progress-card .card{
+    width: 330px;
+    height: 230px;
+    /* border: 1px solid black; */
+    box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+}
+.courses-progress-card .card img{
+    width: 330px;
+    height: 150px;
+    padding-bottom: 5px;
+    border-radius: 10px;
+}
+.courses-progress-card .card h3{
+    text-align: left;
+    padding-left: 20px;
+    font-family: "Manrope", serif;
+    font-weight: 800;
+    font-size: 14px;
+}
+.resume{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-right: 20px;
+    /* padding-bottom: 10px; */
+}
+.resume a{
+    text-decoration: none;
+}
+.resume i{
+    font-size: 30px;
+    color:rgb(35, 168, 84);
 }
