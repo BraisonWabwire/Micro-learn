@@ -8,7 +8,9 @@
     <title>Document</title>
     <link rel="stylesheet" href="{% static 'css/dash.css' %}">
     <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+    <script src="{% static 'javascript/student-dash.js' %}"></script>
 </head>
+
 <body>
     <div class="left-nav">
         <div class="subnav1">
@@ -26,15 +28,19 @@
             <h3>Main menu</h3>
             <div class="links">
                 <i class="ph ph-house"></i>
-                <a href="#"> My progress</a>
+                <a href="#" onclick="showContent(event,'progress-container')"> My progress</a>
             </div>
             <div class="links">
                 <i class="ph ph-video"></i>
-                <a href="#"> Explore courses</a>
+                <a href="#" onclick="showContent(event,'explore-courses-container')"> Explore courses</a>
             </div>
             <div class="links">
                 <i class="ph ph-chart-line-up"></i>
-                <a href="#"> Performance</a>
+                <a href="#" onclick="showContent(event,'performance-container')"> Performance</a>
+            </div>
+            <div class="links">
+                <i class="ph ph-bookmarks"></i>
+                <a href="#" onclick="showContent(event,'assignement-container')"> Assignments</a>
             </div>
         </div>
         <div class="subnav3">
@@ -59,94 +65,153 @@
                 <div class="tutorial"><a href="#">Tutorial</a></div>
             </div>
         </div>
-
-        <div class="course-overview">
-            <h1>Course Overview</h1>
-            <div class="card">
-                <div class="overview-card">
-                    <div class="top-desc">
-                        <i class="ph ph-book-bookmark"></i>
-                        <div class="desc">
-                            <h2>10</h2>
-                            <h3>Courses Available</h3>
+        <!-- Progress container design -->
+        <div class="progress-container" id="progress-container">
+            <div class="course-overview">
+                <h1>Course Overview</h1>
+                <div class="card">
+                    <div class="overview-card">
+                        <div class="top-desc">
+                            <i class="ph ph-book-bookmark"></i>
+                            <div class="desc">
+                                <h2>10</h2>
+                                <h3>Courses Available</h3>
+                            </div>
+                        </div>
+                        <div class="bottom-desc">
+                            <a href="#">see details</a>
+                            <a href=""><i class="ph ph-arrow-circle-right"></i></a>
                         </div>
                     </div>
-                    <div class="bottom-desc">
-                        <a href="#">see details</a>
-                        <a href=""><i class="ph ph-arrow-circle-right"></i></a>
+                    <div class="overview-card">
+                        <div class="top-desc">
+                            <i class="ph ph-check-fat"></i>
+                            <div class="desc">
+                                <h2>10</h2>
+                                <h3>Courses completed</h3>
+                            </div>
+                        </div>
+                        <div class="bottom-desc">
+                            <a href="#">see details</a>
+                            <a href=""><i class="ph ph-arrow-circle-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="overview-card">
+                        <div class="top-desc">
+                            <i class="ph ph-spinner-gap"></i>
+                            <div class="desc">
+                                <h2>10</h2>
+                                <h3>Courses in Progress</h3>
+                            </div>
+                        </div>
+                        <div class="bottom-desc">
+                            <a href="#">see details</a>
+                            <a href=""><i class="ph ph-arrow-circle-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="overview-card">
+                        <div class="top-desc">
+                            <i class="ph ph-certificate"></i>
+                            <div class="desc">
+                                <h2>10</h2>
+                                <h3>Total Certificates</h3>
+                            </div>
+                        </div>
+                        <div class="bottom-desc">
+                            <a href="#">see details</a>
+                            <a href=""><i class="ph ph-arrow-circle-right"></i></a>
+                        </div>
                     </div>
                 </div>
-                <div class="overview-card">
-                    <div class="top-desc">
-                        <i class="ph ph-check-fat"></i>
-                        <div class="desc">
-                            <h2>10</h2>
-                            <h3>Courses completed</h3>
+            </div>
+            <div class="courses-in-progress">
+                <h2>Courses in progress</h2>
+                <div class="courses-progress-card">
+                    <div class="card">
+                        <img src="{% static 'images/lerning.webp' %}" alt="" srcset="">
+                        <h3>Cyber Security</h3>
+                        <h3> Instructor: Dr. Calvins Wabwire</h3>
+                        <div class="resume">
+                            <h3>Progress 5%</h3>
+                            <a href="#"><i class="ph ph-play-circle"></i></a>
                         </div>
                     </div>
-                    <div class="bottom-desc">
-                        <a href="#">see details</a>
-                        <a href=""><i class="ph ph-arrow-circle-right"></i></a>
-                    </div>
-                </div>
-                <div class="overview-card">
-                    <div class="top-desc">
-                        <i class="ph ph-spinner-gap"></i>
-                        <div class="desc">
-                            <h2>10</h2>
-                            <h3>Courses in Progress</h3>
+                    <div class="card">
+                        <img src="{% static 'images/database.webp' %}" alt="" srcset="">
+                        <h3>Cyber Security</h3>
+                        <h3> Instructor: Dr. Calvins Wabwire</h3>
+                        <div class="resume">
+                            <h3>Progress 5%</h3>
+                            <a href="#"><i class="ph ph-play-circle"></i></a>
                         </div>
                     </div>
-                    <div class="bottom-desc">
-                        <a href="#">see details</a>
-                        <a href=""><i class="ph ph-arrow-circle-right"></i></a>
-                    </div>
-                </div>
-                <div class="overview-card">
-                    <div class="top-desc">
-                        <i class="ph ph-certificate"></i>
-                        <div class="desc">
-                            <h2>10</h2>
-                            <h3>Total Certificates</h3>
+                    <div class="card">
+                        <img src="{% static 'images/lerning.webp' %}" alt="" srcset="">
+                        <h3>Cyber Security</h3>
+                        <h3> Instructor: Dr. Calvins Wabwire</h3>
+                        <div class="resume">
+                            <h3>Progress 5%</h3>
+                            <a href="#"><i class="ph ph-play-circle"></i></a>
                         </div>
                     </div>
-                    <div class="bottom-desc">
-                        <a href="#">see details</a>
-                        <a href=""><i class="ph ph-arrow-circle-right"></i></a>
+                    <div class="card">
+                        <img src="{% static 'images/lerning.webp' %}" alt="" srcset="">
+                        <h3>Cyber Security</h3>
+                        <h3> Instructor: Dr. Calvins Wabwire</h3>
+                        <div class="resume">
+                            <h3>Progress 5%</h3>
+                            <a href="#"><i class="ph ph-play-circle"></i></a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="courses-in-progress">
-            <h2>Courses in progress</h2>
-            <div class="courses-progress-card">
-                <div class="card">
-                    <img src="{% static 'images/lerning.webp' %}" alt="" srcset="">
-                    <h3>Cyber Security</h3>
-                    <h3> Instructor: Dr. Calvins Wabwire</h3>
-                    <div class="resume">
-                        <h3>Progress 5%</h3>
-                        <a href="#"><i class="ph ph-play-circle"></i></a>
-                    </div>
-                </div>
-                <div class="card">
-                    <img src="{% static 'images/database.webp' %}" alt="" srcset="">
-                    <h3>Cyber Security</h3>
-                    <h3> Instructor: Dr. Calvins Wabwire</h3>
-                    <h3>Progress 5%</h3>
-                </div>
-                <div class="card">
-                    <img src="{% static 'images/lerning.webp' %}" alt="" srcset="">
-                    <h3>Cyber Security</h3>
-                    <h3> Instructor: Dr. Calvins Wabwire</h3>
-                    <h3>Progress 5%</h3>
-                </div>
-                <div class="card">
-                    <img src="{% static 'images/lerning.webp' %}" alt="" srcset="">
-                    <h3>Cyber Security</h3>
-                    <h3> Instructor: Dr. Calvins Wabwire</h3>
-                    <h3>Progress 5%</h3>
-                </div>
+
+        <!-- Explore courses design -->
+        <div class="explore-courses-container" id="explore-courses-container">
+            <div class="course-cart">
+                <img src="{% static 'images/database.webp' %}" alt="">
+                <h1>Title: Advanced database systems</h2>
+                    <h2>Subject: Computer Science</h2>
+                    <h2>Instructor: Braison Wabwire</h2>
+
+                    <a href="#"> <button>Enrol me</button></a>
+            </div>
+        </div>
+        <div class="performance-container" id="performance-container">
+        </div>
+        <div class="assignement-container" id="assignement-container">
+            <div class="filter">
+                <a href="#"><h2>All Assignments</h2></a>
+                <a href="#"><h2>By Status</h2></a>
+                <a href="#"><h2>By Due Date</h2></a>
+            </div>
+            <div class="assignment-table">
+                <table class="assignment-table-1">
+                    <thead>
+                        <tr>
+                            <th>Assignment Overview</th>
+                            <th>Module/Class</th>
+                            <th>Score</th>
+                            <th>Due Date</th>
+                            <th>Days Left</th>
+                            <th>Status</th>
+                            <th>Comment</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Cyber Security</td>
+                            <td>Computer Science</td>
+                            <td>80%</td>
+                            <td>1/4/2025</td>
+                            <td>14</td>
+                            <td>Not started</td>
+                            <td><i class="ph ph-chat-dots"></i></td>
+
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
