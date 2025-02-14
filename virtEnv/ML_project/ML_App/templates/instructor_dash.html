@@ -6,20 +6,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'css/instructor-dash.css' %}">
     <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
-    <script src="{% static 'javascript/admin_dash.js'%}"></script>
+    <script src="{% static 'javascript/instructor_dash.js'%}"></script>
 </head>
 
 <body>
     <div class="left-nav">
         <div class="subnav1">
-            <h2>Administrator</h2>
+            <h2>Instructor</h2>
             <div class="profile">
                 <img src="{% static 'images/me.jpg' %}" alt="" srcset="">
                 <div class="username">
-                    <h3>Administrator</h3>
-                    <h4>administrator@gmail.com</h4>
+                    <h3>Braison Wabwire</h3>
+                    <h4>instructor@gmail.com</h4>
                 </div>
                 <i class="ph ph-caret-down"></i>
             </div>
@@ -28,15 +28,15 @@
             <h3>Main menu</h3>
             <div class="links">
                 <i class="ph ph-users-three"></i>
-                <a href="#" onclick="showContent(event,'manage-users')">Manage users</a>
+                <a href="#" onclick="showContent(event,'manage-courses')">Manage Course</a>
             </div>
             <div class="links">
-                <i class="ph ph-user-list"></i>
-                <a href="#" onclick="showContent(event,'manage-instructors')"> Manage Instructors</a>
+                <i class="ph ph-users-three"></i>
+                <a href="#" onclick="showContent(event,'manage-students')">Manage Students </a>
             </div>
             <div class="links">
                 <i class="ph ph-user-square"></i>
-                <a href="#" onclick="showContent(event,'manage-students')"> Manage students</a>
+                <a href="#" onclick="showContent(event,'manage-assesments')"> Assignment and assesment</a>
             </div>
         </div>
         <div class="subnav3">
@@ -61,10 +61,10 @@
                 <div class="tutorial"><a href="#">Tutorial</a></div>
             </div>
         </div>
-        <div class="manage-users" id="manage-users"></div>
-        <div class="manage-instructors" id="manage-instructors"></div>
+        <div class="manage-courses" id="manage-courses"></div>
         <div class="manage-students" id="manage-students"></div>
+        <div class="manage-assesments" id="manage-assesments"></div>
     </div>
-
 </body>
+
 </html>

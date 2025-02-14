@@ -81,11 +81,6 @@ def dashbord(request):
     }
     return render(request, 'dashbord.html', context)
 
-
-def instructor(request):
-
-    return render(request, 'instructor.html')
-
 def admin_login(request):
     if request.method == "POST":
         # Get the submitted username and password
@@ -111,3 +106,6 @@ def logoutAdmin(request):
 def admin_dashboard(request):
 
     return render(request, 'admin_dashboard.html')
+
+def instructor_dash(request):
+    return render(request, 'instructor_dash.html')

@@ -233,18 +233,18 @@ body {
 
 }
 /* Manage users design */
-.content .manage-users{
+.content .manage-courses{
     width: 100%;
     height: 92vh;
     background-color: #152238;
 }
 /* Manage Instructors design */
-.content .manage-instructors{
+.content .manage-students{
     width: 100%;
     height: 92vh;
     background-color: #44ae46;
 }
-.content .manage-students{
+.content .manage-assesments{
     width: 100%;
     height: 92vh;
     background-color: #224665;
