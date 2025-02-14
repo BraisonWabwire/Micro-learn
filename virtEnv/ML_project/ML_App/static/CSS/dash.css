@@ -559,6 +559,7 @@ body {
     width: 90%;
     height: 70vh;    
     margin-top: 20px;
+    margin-left: 60px;
 
 }
 .assignement-container .assignment-table .assignment-table-1{
@@ -582,4 +583,17 @@ body {
 
 .assignement-container .assignment-table .assignment-table-1 tbody tr{
     border-bottom: 1px solid #c5ccd2;
+}
+.assignement-container .assignment-table .assignment-table-1 tbody tr a{
+    text-decoration: none;
+    color: rgb(17, 11, 137);
+}
+.assignement-container .assignment-table .assignment-table-1 tbody tr:nth-of-type(even){
+    background-color: #bfc5c8;
+}
+.assignement-container .assignment-table .assignment-table-1 tbody tr td i{
+    font-size: 20px;
+}
+.assignement-container .assignment-table .assignment-table-1 td{
+    font-size: 14px;
 }

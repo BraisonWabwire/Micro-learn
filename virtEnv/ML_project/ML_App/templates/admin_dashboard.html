@@ -1,14 +1,16 @@
-
 {% load static%}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}">
     <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+    <script src="{% static 'javascript/admin_dash.js'%}"></script>
 </head>
+
 <body>
     <div class="left-nav">
         <div class="subnav1">
@@ -26,19 +28,19 @@
             <h3>Main menu</h3>
             <div class="links">
                 <i class="ph ph-users-three"></i>
-                <a href="#"> Manage users</a>
+                <a href="#" onclick="showContent(event,'manage-users')">Manage users</a>
             </div>
             <div class="links">
                 <i class="ph ph-user-list"></i>
-                <a href="#"> Manage Instructors</a>
+                <a href="#" onclick="showContent(event,'manage-instructors')"> Manage Instructors</a>
             </div>
             <div class="links">
                 <i class="ph ph-user-square"></i>
-                <a href="#"> Manage students</a>
+                <a href="#" onclick="showContent(event,'manage-students')"> Manage students</a>
             </div>
         </div>
         <div class="subnav3">
-    
+
         </div>
         <div class="subnav4">
             <i class="ph ph-power"></i>
@@ -60,12 +62,9 @@
             </div>
         </div>
     </div>
+    <div class="manage-users" id="manage-users"></div>
+    <div class="manage-instructors" id="manage-instructors"></div>
+    <div class="manage-students" id="manage-students"></div>
 </body>
+
 </html>
-
-
-
-
-
-
-
