@@ -129,32 +129,36 @@ body {
     background-color: rgb(35, 168, 84);
 }
 
-.subnav3{
+.subnav3 {
     width: 100%;
     height: 35vh;
     /* background-color: #f2f2f2; */
 }
-.subnav4{
+
+.subnav4 {
     width: 100%;
     padding: 20px;
     display: flex;
     align-items: center;
     gap: 1rem;
-    border-top: 1px solid rgba(254, 251, 251, 0.2);;
+    border-top: 1px solid rgba(254, 251, 251, 0.2);
+    ;
 }
-.subnav4 a{
+
+.subnav4 a {
     color: white;
     font-size: 13px;
     font-family: "Inter", serif;
     text-decoration: none;
 }
-.subnav4 i{
+
+.subnav4 i {
     color: white;
     font-size: 18px;
 }
 
 /* Content design  */
-.content{
+.content {
     width: 80%;
     height: 100vh;
     background-color: #f0f8ff;
@@ -162,7 +166,8 @@ body {
     display: flex;
     flex-direction: column;
 }
-.top-bar{
+
+.top-bar {
     width: 100%;
     height: 8vh;
     background-color: white;
@@ -172,7 +177,8 @@ body {
     justify-content: space-between;
     padding: 20px;
 }
-.search-bar{
+
+.search-bar {
     width: 300px;
     height: 30px;
     border: 2px solid #152238;
@@ -180,49 +186,57 @@ body {
     align-items: center;
     padding: 10px;
     border-radius: 5px;
-    
+
 }
-.search-bar form{
+
+.search-bar form {
     display: flex;
     flex-direction: row;
     align-items: center;
     gap: 0.5rem;
 }
-.search-bar input{
+
+.search-bar input {
     border: none;
     width: 250px;
     height: 20px;
     outline: none;
-    
+
 }
-.search-bar i{
+
+.search-bar i {
     color: #152238;
 }
-.search-bar button{
+
+.search-bar button {
     display: none;
 }
-.notification{
+
+.notification {
     width: 200px;
     height: 6vh;
-    /* background-color: aqua; */
 }
-.notification{
+
+.notification {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 1rem;
 }
-.notification a{
+
+.notification a {
     text-decoration: none;
     font-size: 13px;
     color: white;
     font-family: "Inter", serif;
 }
-.notification i{
+
+.notification i {
     color: #152238;
     font-size: 16px;
 }
-.tutorial{
+
+.tutorial {
     width: 100px;
     height: 5vh;
     display: flex;
@@ -232,19 +246,22 @@ body {
     border-radius: 5px;
 
 }
+
 /* Manage users design */
-.content .manage-courses{
+.content .manage-courses {
     width: 100%;
     height: 92vh;
     background-color: #152238;
 }
+
 /* Manage Instructors design */
-.content .manage-students{
+.content .manage-students {
     width: 100%;
     height: 92vh;
     background-color: #44ae46;
 }
-.content .manage-assesments{
+
+.content .manage-assesments {
     width: 100%;
     height: 92vh;
     background-color: #224665;

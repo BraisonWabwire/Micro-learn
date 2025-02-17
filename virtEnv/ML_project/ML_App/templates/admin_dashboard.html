@@ -8,7 +8,7 @@
     <title>Document</title>
     <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}">
     <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
-    <script src="{% static 'javascript/admin_dash.js'%}"></script>
+    <script src="{% static 'javascript/admin_dashboard.js'%}"></script>
 </head>
 
 <body>
@@ -28,14 +28,14 @@
             <h3>Main menu</h3>
             <div class="links">
                 <i class="ph ph-users-three"></i>
-                <a href="#" onclick="showContent(event,'manage-users')">Manage users</a>
+                <a href="#" onclick="showContent(event,'manage-users')">View all users</a>
             </div>
             <div class="links">
                 <i class="ph ph-user-list"></i>
                 <a href="#" onclick="showContent(event,'manage-instructors')"> Manage Instructors</a>
             </div>
             <div class="links">
-                <i class="ph ph-user-square"></i>
+                <i class="ph ph-student"></i>
                 <a href="#" onclick="showContent(event,'manage-students')"> Manage students</a>
             </div>
         </div>
@@ -62,7 +62,24 @@
             </div>
         </div>
         <div class="manage-users" id="manage-users"></div>
-        <div class="manage-instructors" id="manage-instructors"></div>
+        <div class="manage-instructors" id="manage-instructors">
+            <div class="add-instructor">
+                <a href="#"><i class="ph ph-plus"></i></a>
+                <a href="#"><h2>Add instructor</h2></a>
+            </div>
+            <div class="view-instructor">
+                <i class="ph ph-eye"></i>
+                <a href="#"><h2>View instructor</h2></a>
+            </div>
+            <div class="update-instructor">
+                <a href="#"><i class="ph ph-arrows-clockwise"></i></a>
+                <a href="#"><h2>Update instructor</h2></a>
+            </div>
+            <div class="delete-instructor">
+                <a href="#"><i class="ph ph-trash"></i></a>
+                <a href="#"><h2>Delete instructor</h2></a>
+            </div>
+        </div>
         <div class="manage-students" id="manage-students"></div>
     </div>
 

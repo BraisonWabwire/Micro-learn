@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function() {
     // Call the function to show the first section when the page loads
-    showContent(event, '.manage-courses'); // Replace 'progress-container' with the ID of your first div
+    showContent(null, 'manage-courses'); // Replace 'progress-container' with the ID of your first div
 });
 
 function showContent(event, contentId) {
