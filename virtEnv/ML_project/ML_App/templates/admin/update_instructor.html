@@ -1,0 +1,62 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if form.instance.pk %}Edit{% else %}Add{% endif %} Instructor</title>
+    <link rel="stylesheet" href="{% static 'css/update_instructor.css' %}">
+
+</head>
+
+<body>
+    <div class="form-container">
+        <h2>{% if form.instance.pk %}Edit{% else %}Add{% endif %} Instructor</h2>
+
+        <form method="POST" class="styled-form">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="{{ form.username.id_for_label }}">Username</label>
+                {{ form.username }}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.password.id_for_label }}">Password</label>
+                {{ form.password }}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.name.id_for_label }}">Name</label>
+                {{ form.name }}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.email.id_for_label }}">Email</label>
+                {{ form.email }}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.department.id_for_label }}">Department</label>
+                {{ form.department }}
+            </div>
+
+            <div class="form-group">
+                <!-- <label for="{{ form.instructor_number.id_for_label }}">Instructor Number</label> -->
+                {{ form.instructor_number }}
+            </div>
+
+            <div class="form-buttons">
+                <button type="submit" class="btn-submit">
+                    {% if form.instance.pk %}Update{% else %}Add{% endif %} Instructor
+                </button>
+                <a href="{% url 'admin_dashboard' %}" class="btn-cancel">Cancel</a>
+            </div>
+        </form>
+
+    </div>
+
+</body>
+
+</html>

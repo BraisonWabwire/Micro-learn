@@ -77,7 +77,7 @@ WSGI_APPLICATION = 'ML_project.wsgi.application'
 DATABASES = {  
     'default': {  
         'ENGINE': 'django.db.backends.mysql',  
-        'NAME': 'MicroLearning',  
+        'NAME': 'MLAPP',  
         'USER': 'root',  
         'PASSWORD': '@Wabwire7627',  
         'HOST': '127.0.0.1',  
@@ -127,3 +127,7 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'

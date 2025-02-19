@@ -1,0 +1,221 @@
+{% load static%}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}">
+    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+    <script src="{% static 'javascript/admin_dashboard.js'%}"></script>
+</head>
+
+<body>
+    <div class="left-nav">
+        <div class="subnav1">
+            <h2>Administrator</h2>
+            <div class="profile">
+                <img src="{% static 'images/me.jpg' %}" alt="" srcset="">
+                <div class="username">
+                    <h3>Administrator</h3>
+                    <h4>administrator@gmail.com</h4>
+                </div>
+                <i class="ph ph-caret-down"></i>
+            </div>
+        </div>
+        <div class="subnav2">
+            <h3>Main menu</h3>
+            <div class="links">
+                <i class="ph ph-users-three"></i>
+                <a href="#" onclick="showContent(event,'manage-users')">Manage all users</a>
+            </div>
+            <div class="links">
+                <i class="ph ph-user-list"></i>
+                <a href="#" onclick="showContent(event,'manage-instructors')"> Manage Instructors</a>
+            </div>
+            <div class="links">
+                <i class="ph ph-student"></i>
+                <a href="#" onclick="showContent(event,'manage-students')"> Manage students</a>
+            </div>
+        </div>
+        <div class="subnav3">
+
+        </div>
+        <div class="subnav4">
+            <i class="ph ph-power"></i>
+            <a href="{% url 'logoutAdmin' %}">Logout Account</a>
+        </div>
+    </div>
+    <div class="content">
+        <div class="top-bar">
+            <div class="search-bar">
+                <form action="">
+                    <i class="ph ph-magnifying-glass"></i>
+                    <input type="text" placeholder="search">
+                    <button type="submit"></button>
+                </form>
+            </div>
+            <div class="notification">
+                {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                <a href="#"><i class="ph ph-bell-ringing"></i></a>
+                <div class="tutorial"><a href="#">Tutorial</a></div>
+            </div>
+        </div>
+        <div class="manage-users" id="manage-users">
+            <div class="table-container">
+                <h2>Manage all users</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Department</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>John Doe</td>
+                            <td>john.doe@example.com</td>
+                            <td>Computer Science</td>
+                            <td>
+                                <button class="btn-edit">Edit</button>
+                                <button class="btn-delete">Delete</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Jane Smith</td>
+                            <td>jane.smith@example.com</td>
+                            <td>Mathematics</td>
+                            <td>
+                                <button class="btn-edit">Edit</button>
+                                <button class="btn-delete">Delete</button>
+                            </td>
+                        </tr>
+                        <!-- Add more rows as needed -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="manage-instructors" id="manage-instructors">
+            <div class="table-container">
+                <h2>Manage Instructors</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>instructor_number</th>
+                            <th>username</th>
+                            <th>Full Names</th>
+                            <th>Email</th>
+                            <th>Department</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for instructor in instructors %}
+                        <tr>
+                            <td>{{ instructor.id }}</td>
+                            <td>{{instructor.instructor_number}}</td>
+                            <td>{{ instructor.user.username }}</td>
+                            <td>{{ instructor.name }}</td>
+                            <td>{{ instructor.email }}</td>
+                            <td>{{ instructor.department }}</td>
+
+                            <td>
+                                <a href="{% url 'instructor_update' instructor.id %}" class="btn-edit">Edit</a>
+                                <form action="{% url 'instructor_delete' instructor.id %}" method="POST"
+                                    style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-delete"
+                                        onclick="return confirm('Are you sure?')">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <a href="javascript:void(0);" class="btn-add" onclick="showOverlay()">Add New Instructor</a>
+
+            </div>
+        </div>
+        <!-- Manage students -->
+        <div class="manage-students" id="manage-students">
+            <div class="table-container">
+                <h2>Manage Students</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Department</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>John Doe</td>
+                            <td>john.doe@example.com</td>
+                            <td>Computer Science</td>
+                            <td>
+                                <button class="btn-edit">Edit</button>
+                                <button class="btn-delete">Delete</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Jane Smith</td>
+                            <td>jane.smith@example.com</td>
+                            <td>Mathematics</td>
+                            <td>
+                                <button class="btn-edit">Edit</button>
+                                <button class="btn-delete">Delete</button>
+                            </td>
+                        </tr>
+                        <!-- Add more rows as needed -->
+                    </tbody>
+                </table>
+                <button class="btn-add">Add New Instructor</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Overlay Create Instructor Form -->
+    <div class="overlay" id="form-overlay">
+        <div class="overlay-content">
+            <h2>{% if form.instance.pk %}Edit{% else %}Add{% endif %} Instructor</h2>
+            <form method="POST">
+                {% csrf_token %}
+                {% for field in form %}
+                <div class="overlay-form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                </div>
+                {% endfor %}
+                <button type="submit">
+                    {% if form.instance.pk %}Update{% else %}Add{% endif %} Instructor
+                </button>
+                <button type="button" onclick="closeOverlay()">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+
+</body>
+
+</html>

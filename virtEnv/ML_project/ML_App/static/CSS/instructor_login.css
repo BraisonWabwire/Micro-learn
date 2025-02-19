@@ -1,0 +1,90 @@
+/* Container Styling */
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@100..900&display=swap');
+
+.form-container {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 10px;
+    max-width: 500px; 
+    width: 100%;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    margin: 50px auto; 
+}
+
+/* Title Styling */
+.form-container h2 {
+    font-family: "Inter", serif;
+    font-size: 20px;
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Form Group */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+/* Label Styling */
+.form-group label {
+    font-size: 14px;
+    font-weight: normal;
+    color: #333;
+    font-family: "Inter", serif;
+}
+
+/* Input Fields */
+.form-group input {
+    width: 100%; /* Ensures inputs are of equal width */
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s ease-in-out;
+}
+
+/* Input Focus Effect */
+.form-group input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+}
+
+/* Button Styling */
+button {
+    background-color: #007bff;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: background-color 0.3s;
+    width: 100%;
+    font-family: "Inter", serif;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Forgot Password Link */
+.form-container a {
+    color: #007bff;
+    text-align: center;
+    font-size: 16px;
+    margin-top: 15px;
+    text-decoration: none;
+    display: block;
+}
+
+.form-container a:hover {
+    text-decoration: underline;
+}

@@ -20,3 +20,45 @@ function showContent(event, contentId) {
         activeSection.style.display = 'flex'; // Set display to flex instead of block
     }
 }
+
+
+
+
+// Function to open the overlay
+function showOverlay() {
+    let overlay = document.getElementById("form-overlay");
+    overlay.style.display = "flex";
+    overlay.classList.add("show");
+}
+
+// Function to close the overlay
+function closeOverlay() {
+    let overlay = document.getElementById("form-overlay");
+    overlay.classList.remove("show");
+    setTimeout(() => {
+        overlay.style.display = "none";
+    }, 300);
+}
+
+// Ensure only the intended button triggers the overlay
+document.querySelector('.btn-add').addEventListener('click', function (e) {
+    e.preventDefault();
+    showOverlay(); // Show the overlay
+});
+
+
+
+
+
+// Messages 
+document.addEventListener("DOMContentLoaded", function () {
+    let alerts = document.querySelectorAll(".alert");
+    alerts.forEach(function (alert) {
+        setTimeout(() => {
+            alert.style.transition = "opacity 0.5s ease-in-out"; // Smooth transition
+            alert.style.opacity = "0"; // Start fade-out
+            setTimeout(() => alert.remove(), 500); // Remove element after fade-out
+        }, 3000); // Message disappears after 3 seconds
+    });
+});
+

@@ -1,58 +1,42 @@
+from django.contrib.auth.models import User
 from django.db import models
 
-# # Create your models here
-# class lesson(models.Model):
-#     lesson_id = models.AutoField(primary_key=True)
-#     course_id = models.IntegerField()  # Assuming this is a foreign key to a Course model
-#     title = models.CharField(max_length=255)
-#     content = models.TextField()
-#     media_type = models.CharField(max_length=50, choices=[('video', 'Video')], default='video')
-#     duration = models.DurationField()
-#     sequence = models.PositiveIntegerField()
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     updated_at = models.DateTimeField(auto_now=True)
+class Instructor(models.Model):
+    DEPARTMENT_CHOICES = [
+        ('CS', 'Computer Science'),
+        ('ECE', 'Electronics & Communication'),
+        ('ME', 'Mechanical Engineering'),
+    ]
 
-#     def __str__(self):
-#         return f" {self.title}-{self.course_id}"
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='instructor')
+    name = models.CharField(max_length=255)
+    email = models.EmailField(unique=True)  # Ensure uniqueness
+    instructor_number = models.CharField(max_length=10, unique=True, editable=False)  
+    department = models.CharField(max_length=50, choices=DEPARTMENT_CHOICES)
 
+    def save(self, *args, **kwargs):
+        if not self.instructor_number:
+            last_instructor = Instructor.objects.order_by('-id').first()
+            if last_instructor and last_instructor.instructor_number.startswith("IN/"):
+                num = int(last_instructor.instructor_number.split("/")[-1]) + 1
+                self.instructor_number = f"IN/{num:03d}"
+            else:
+                self.instructor_number = "IN/001"  # Start from IN/001
+        super().save(*args, **kwargs)
 
-# from django.db import models
-# from django.contrib.auth.models import AbstractUser
-
-# class Instructor(models.Model):
-#     # Personal Information
-#     first_name = models.CharField(max_length=50)
-#     last_name = models.CharField(max_length=50)
-#     date_of_birth = models.DateField()
-#     gender_choices = [
-#         ('M', 'Male'),
-#         ('F', 'Female'),
-#         ('O', 'Other'),
-#     ]
-#     gender = models.CharField(max_length=1, choices=gender_choices)
-#     email = models.EmailField(unique=True)
-#     phone_number = models.CharField(max_length=15)
-
-#     # Professional Information
-#     highest_qualification = models.CharField(max_length=100)
-#     area_of_expertise = models.TextField()
-#     years_of_experience = models.PositiveIntegerField()
-#     resume = models.FileField(upload_to='resumes/')
-
-#     # Account Information
-#     username = models.CharField(max_length=50, unique=True)
-#     password = models.CharField(max_length=128)
-
-#     # Other Information
-#     linkedin_profile = models.URLField(blank=True, null=True)
-#     portfolio_website = models.URLField(blank=True, null=True)
-#     profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
-
-#     # Agreement Fields
-#     terms_agreed = models.BooleanField(default=False)
-#     privacy_policy_agreed = models.BooleanField(default=False)
-
-#     def __str__(self):
-#         return f"{self.first_name} {self.last_name} ({self.username})"
-
+    def __str__(self):
+        return self.name
     
+
+class Course(models.Model):
+    instructor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="courses")
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    video = models.FileField(upload_to="courses/videos/", blank=True, null=True)
+    course_content = models.TextField()  # Can be used with a rich text editor
+    course_material = models.FileField(upload_to="courses/materials/", blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+

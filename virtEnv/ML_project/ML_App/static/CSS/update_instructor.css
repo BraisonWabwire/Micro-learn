@@ -1,0 +1,109 @@
+
+        /* Global Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Inter", sans-serif;
+        }
+
+        /* Body Styling */
+        body {
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Form Container */
+        .form-container {
+            width: 500px;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Heading */
+        .form-container h2 {
+            text-align: center;
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #152238;
+        }
+
+        /* Form Styling */
+        .styled-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* Form Groups */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        /* Input Fields */
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border 0.3s ease-in-out;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #152238;
+            outline: none;
+        }
+
+        /* Button Styles */
+        .form-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+
+        .btn-submit {
+            background-color: #152238;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        .btn-submit:hover {
+            background-color: #1c2e4a;
+        }
+
+        .btn-cancel {
+            background-color: #f44336;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            text-align: center;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        .btn-cancel:hover {
+            background-color: #e53935;
+        }
+    
