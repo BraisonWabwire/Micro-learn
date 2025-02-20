@@ -1,0 +1,80 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Content</title>
+    <link rel="stylesheet" href="{% static 'css/course_content.css' %}">
+</head>
+<body>
+    <div class="container">
+        <!-- Course Header -->
+        <div class="course-header">
+            <h1>{{ course.title }}</h1>
+            <p>{{ course.description }}</p>
+        </div>
+
+        <!-- Course Content Section -->
+        <div class="card">
+            <h2>Course Content</h2>
+            <p>{{ course.course_content }}</p>
+            <a href="?content=1" class="btn btn-primary">Mark Content as Completed</a>
+        </div>
+
+        <!-- Video Section -->
+        {% if course.video %}
+        <div class="card">
+            <h2>Video</h2>
+            <div class="video-container">
+                <video controls>
+                    <source src="{{ course.video.url }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            <a href="?video=1" class="btn btn-primary">Mark Video as Completed</a>
+        </div>
+        {% endif %}
+
+        <!-- Course Material Section -->
+        {% if course.course_material %}
+        <div class="card">
+            <h2>Course Material</h2>
+            <a href="{{ course.course_material.url }}" class="btn btn-secondary" download>Download Material</a>
+            <a href="?material=1" class="btn btn-primary">Mark Material as Downloaded</a>
+        </div>
+        {% endif %}
+
+        <!-- Progress Section -->
+        <div class="progress-section">
+            <h2>Your Progress</h2>
+            <ul class="progress-list">
+                <li>
+                    Content Completed
+                    <span class="badge {% if progress.completed_content %}badge-success{% else %}badge-secondary{% endif %}">
+                        {% if progress.completed_content %}Yes{% else %}No{% endif %}
+                    </span>
+                </li>
+                <li>
+                    Video Completed
+                    <span class="badge {% if progress.completed_video %}badge-success{% else %}badge-secondary{% endif %}">
+                        {% if progress.completed_video %}Yes{% else %}No{% endif %}
+                    </span>
+                </li>
+                <li>
+                    Material Completed
+                    <span class="badge {% if progress.completed_material %}badge-success{% else %}badge-secondary{% endif %}">
+                        {% if progress.completed_material %}Yes{% else %}No{% endif %}
+                    </span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Action Buttons (Exit and Save Progress) -->
+        <div class="action-buttons">
+            <a href="#" class="btn btn-danger">Exit</a>
+            <a href="#" class="btn btn-success">Save Progress</a>
+        </div>
+    </div>
+</body>
+</html>

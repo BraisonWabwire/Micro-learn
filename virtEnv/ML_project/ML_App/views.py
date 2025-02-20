@@ -3,8 +3,12 @@ from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .models import Instructor, Course, Profile
+from .models import Instructor, Course, Profile,Enrollment,Progress
 from .forms import InstructorForm, CourseForm, SignupForm, InstructorLoginForm
+from django.views.decorators.cache import never_cache
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
 
 # Create your views here.
 # Student Handling
@@ -27,7 +31,7 @@ def signup(request):
             if form.is_valid():
                 user = form.save()
                 messages.success(request, f"Account for {user.username} created successfully")
-                return redirect('login')
+                return redirect('student_login')
             else:
                 print(form.errors)
 
@@ -43,7 +47,7 @@ def loginUser(request):
         return redirect('student_dashboard')
     
     context = {
-        'title': 'login'
+        'title': 'student_login'
     }
 
     if request.method == "POST":
@@ -70,23 +74,36 @@ def loginUser(request):
 
     return render(request, 'student/login.html', context)
 
-
-@login_required(login_url='login')
+# Student dahsboard
+@never_cache
+@login_required(login_url='student_login')
 def student_dashboard(request):
-    courses = Course.objects.all() 
-    total_courses = courses.count()
+    profile = get_object_or_404(Profile, user=request.user)
 
+    # Ensure the user is a student
+    if profile.is_instructor:
+        return redirect('student_login')
+
+    # Fetching courses
+    courses = Course.objects.all()
+    enrolled_courses = Course.objects.filter(enrollments__student=request.user)
+    available_courses = courses.exclude(enrollments__student=request.user)
+    
     context = {
-        'title': 'Student Dashboard',
-        'total_courses': total_courses,
-        # 'courses': courses,
+        'title': 'Student_Dashboard',
+        'total_courses': courses.count(),
+        'available_courses': available_courses,
+        'enrolled_courses': enrolled_courses,
+        'enrolled_courses_count': enrolled_courses.count(),
     }
+
     return render(request, 'student/dashboard.html', context)
+
 
 # Handling user logout
 def logoutUser(request):
     logout(request)
-    return redirect('login')
+    return redirect('student_login')
 
 
 
@@ -178,8 +195,8 @@ def instructor_delete(request, id):
 # Instructor views
 def instructor_login(request):
     # Check if user is already authenticated
-    if request.user.is_authenticated:
-        return redirect('instructor_dashboard')
+    # if request.user.is_authenticated:
+    #     return redirect('instructor_dashboard')
     
     if request.method == 'POST':
         form = InstructorLoginForm(request, data=request.POST)
@@ -194,7 +211,6 @@ def instructor_login(request):
                 if profile.is_instructor:
                     # If the user is an instructor, log them in and redirect to the instructor dashboard
                     login(request, user)
-                    messages.success(request, 'Login successful!')
                     return redirect('instructor_dashboard')
                 else:
                     # If the user is a student, redirect them to the student login page
@@ -204,33 +220,51 @@ def instructor_login(request):
                 messages.error(request, 'Invalid username or password.')
     else:
         form = InstructorLoginForm()
+    context={
+        'title':'instructor_login',
+        'form': form
+    }
 
-    return render(request, 'instructor/instructor_login.html', {'form': form})
-
-
+    return render(request, 'instructor/instructor_login.html', context)
 
 
 def logoutInstructor(request):
     logout(request)
     return redirect('instructor_login')
 
-@login_required
+@never_cache
+@login_required(login_url='instructor_login')
 def instructor_dashboard(request):
-    # Access the instructor associated with the logged-in user
-    instructor = request.user  # Assuming instructors use the Django User model
+    # Check if the user is an instructor
+    try:
+        profile = Profile.objects.get(user=request.user)
+    except Profile.DoesNotExist:
+        return redirect('homepage')  # Redirect to home or another appropriate page
+    
+
+    # If the user is not an instructor, redirect them based on their role
+    if not profile.is_instructor:
+        return redirect('student_dashboard')  # Redirect to student dashboard
+
+    # If the user is an instructor, proceed to the instructor dashboard
+    instructor = request.user
 
     # Get all courses associated with this instructor
     courses = Course.objects.filter(instructor=instructor)
 
     context = {
+        'title':'instructor_dashbord',
         'instructor': instructor,
         'username': request.user.username,  # Accessing the username
         'email': request.user.email,        # Accessing the email
         'courses': courses,  # Adding courses to the context
     }
+
     return render(request, 'instructor/instructor_dashboard.html', context)
 
-@login_required
+
+
+@login_required(login_url='instructor_login')
 def add_course(request):
     if request.method == "POST":
         form = CourseForm(request.POST, request.FILES)
@@ -245,7 +279,7 @@ def add_course(request):
     
     return render(request, 'instructor/add_course.html', {'form': form})
 
-@login_required
+@login_required(login_url='instructor_login')
 def edit_course(request, course_id):
     course = get_object_or_404(Course, course_id=course_id, instructor=request.user)
 
@@ -260,7 +294,7 @@ def edit_course(request, course_id):
 
     return render(request, "instructor/edit_course.html", {"form": form, "course": course})
 
-@login_required
+@login_required(login_url='instructor_login')
 def delete_course(request, course_id):
     course = get_object_or_404(Course, course_id=course_id, instructor=request.user)
 
@@ -270,3 +304,56 @@ def delete_course(request, course_id):
         return redirect("instructor_dashboard")  # Adjust as needed
 
     return render(request, "instructor/confirm_delete_course.html", {"course": course})
+
+# Course enrolment handling
+@login_required(login_url='student_login')
+def enroll_course(request, course_id):
+    course = get_object_or_404(Course, course_id=course_id)
+
+    # Check if the student is already enrolled
+    if Enrollment.objects.filter(student=request.user, course=course).exists():
+        messages.warning(request, 'You are already enrolled in this course.')
+    else:
+        # Enroll the student in the course
+        Enrollment.objects.create(student=request.user, course=course)
+        messages.success(request, f'Successfully enrolled in {course.title}.')
+
+    return redirect('student_dashboard')
+
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from .models import Course, Enrollment, Progress
+
+
+# Course content
+
+@login_required(login_url='student_login')
+def course_content(request, course_id):
+    course = get_object_or_404(Course, course_id=course_id)
+    student = request.user
+
+    # Check if the student is enrolled in the course
+    enrollment = Enrollment.objects.filter(student=student, course=course).first()
+    if not enrollment:
+        messages.error(request, 'You are not enrolled in this course.')
+        return redirect('student_dashboard')
+
+    # Get or create progress for the student in this course
+    progress, created = Progress.objects.get_or_create(student=student, course=course)
+
+    # Update progress based on what the student accesses
+    if 'content' in request.GET:
+        progress.completed_content = True
+    if 'video' in request.GET:
+        progress.completed_video = True
+    if 'material' in request.GET:
+        progress.completed_material = True
+    progress.save()
+
+    context = {
+        'course': course,
+        'progress': progress,
+    }
+    return render(request, 'student/course_content.html', context)
+

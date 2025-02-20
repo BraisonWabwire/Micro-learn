@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function() {
     // Call the function to show the first section when the page loads
-    showContent(event, 'progress-container'); // Replace 'progress-container' with the ID of your first div
+    showContent(null, 'progress-container'); // Replace 'progress-container' with the ID of your first div
 });
 
 function showContent(event, contentId) {
@@ -17,7 +17,7 @@ function showContent(event, contentId) {
     // Show the clicked or default section
     const activeSection = document.getElementById(contentId);
     if (activeSection) {
-        activeSection.style.display = 'block'; // Show the active section
+        activeSection.style.display = ''; // Show the active section
     }
 }
 

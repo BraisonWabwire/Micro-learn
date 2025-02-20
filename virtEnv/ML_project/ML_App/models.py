@@ -52,3 +52,29 @@ class Course(models.Model):
 
     def __str__(self):
         return self.title
+    
+
+# Student enrolment model
+class Enrollment(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='enrollments')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='enrollments')
+    enrolled_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('student', 'course')  # Prevent duplicate enrollments
+
+    def __str__(self):
+        return f"{self.student.username} enrolled in {self.course.title}"
+    
+
+
+class Progress(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='progress')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='progress')
+    completed_content = models.BooleanField(default=False)  # Track if content is completed
+    completed_video = models.BooleanField(default=False)  # Track if video is completed
+    completed_material = models.BooleanField(default=False)  # Track if material is completed
+    last_accessed = models.DateTimeField(auto_now=True)  # Track last access time
+
+    def __str__(self):
+        return f"{self.student.username}'s progress in {self.course.title}"

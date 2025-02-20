@@ -12,7 +12,7 @@
                 <li><a href="#">Account</a><i class="fa-solid fa-angle-down"></i></li>
                 <div class="student_dropdown">
                     <a href="{% url 'signup' %}">student signup</a>
-                    <a href="{% url 'login' %}">student login</a>
+                    <a href="{% url 'student_login' %}">student login</a>
                     <a href="{% url 'instructor_login' %}">Instructor login</a>
                 </div>
             </div>
@@ -35,7 +35,7 @@
     <div class="right">
         <h2>Welcome to EduLearn-your gateway to knowledge</h2>
         <h3>"Explore, engage, and elevate your skills today!"</h3>
-        <div class="button"><a href="{% url 'signup' %}"><button> Register</button></a> <a href="{% url 'login' %}"><button>Login as student</button></a></div>
+        <div class="button"><a href="{% url 'signup' %}"><button> Register</button></a> <a href="{% url 'student_login' %}"><button>Login as student</button></a></div>
     </div>
     <div class="left">
         <img src=" {% static 'images/course.png'%}" alt="" srcset="" style="width: 400px; height: 416px;">

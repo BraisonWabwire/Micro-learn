@@ -131,5 +131,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Hadling uploads
 import os
-MEDIA_URL = '/uploads/'  # URL to access media files
-MEDIA_ROOT = r"C:/Micro-learn/virtEnv/ML_project/ML_App/static/uploads"
+MEDIA_URL = '/media/' 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  

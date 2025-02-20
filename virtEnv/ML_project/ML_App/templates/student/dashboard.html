@@ -5,10 +5,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="{% static 'css/dash.css' %}">
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="{% static 'css/student_dashboard.css' %}">
     <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
-    <script src="{% static 'javascript/student-dash.js' %}"></script>
+    <script src="{% static 'javascript/student_dashboard.js' %}"></script>
 </head>
 
 <body>
@@ -100,8 +100,8 @@
                         <div class="top-desc">
                             <i class="ph ph-spinner-gap"></i>
                             <div class="desc">
-                                <h2>10</h2>
-                                <h3>Courses in Progress</h3>
+                                <h2>{{enrolled_courses_count}}</h2>
+                                <h3>Enrolled Courses</h3>
                             </div>
                         </div>
                         <div class="bottom-desc">
@@ -125,82 +125,46 @@
                 </div>
             </div>
             <div class="courses-in-progress">
-                <h2>Courses in progress</h2>
+                <h2>Enrolled courses</h2>
                 <div class="courses-progress-card">
+                    {% if enrolled_courses %}
+                    {% for course in enrolled_courses %}
                     <div class="card">
                         <img src="{% static 'images/lerning.webp' %}" alt="" srcset="">
-                        <h3>Cyber Security</h3>
-                        <h3> Instructor: Dr. Calvins Wabwire</h3>
+                        <h3>{{ course.title }}</h3>
+                        <h3> Instructor: {{ course.instructor.username }}</h3>
+                        <h3>Title: {{ course.description }}</h3>
                         <div class="resume">
                             <h3>Progress 5%</h3>
-                            <a href="#"><i class="ph ph-play-circle"></i></a>
+                            <a href="{% url 'course_content' course.course_id %}"><i class="ph ph-play-circle"></i></a>
                         </div>
                     </div>
-                    <div class="card">
-                        <img src="{% static 'images/database.webp' %}" alt="" srcset="">
-                        <h3>Cyber Security</h3>
-                        <h3> Instructor: Dr. Calvins Wabwire</h3>
-                        <div class="resume">
-                            <h3>Progress 5%</h3>
-                            <a href="#"><i class="ph ph-play-circle"></i></a>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <img src="{% static 'images/lerning.webp' %}" alt="" srcset="">
-                        <h3>Cyber Security</h3>
-                        <h3> Instructor: Dr. Calvins Wabwire</h3>
-                        <div class="resume">
-                            <h3>Progress 5%</h3>
-                            <a href="#"><i class="ph ph-play-circle"></i></a>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <img src="{% static 'images/lerning.webp' %}" alt="" srcset="">
-                        <h3>Cyber Security</h3>
-                        <h3> Instructor: Dr. Calvins Wabwire</h3>
-                        <div class="resume">
-                            <h3>Progress 5%</h3>
-                            <a href="#"><i class="ph ph-play-circle"></i></a>
-                        </div>
-                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <h3>You have not enrolled in any course</h3> 
+                    {% endif %}
                 </div>
             </div>
         </div>
 
         <!-- Explore courses design -->
         <div class="explore-courses-container" id="explore-courses-container">
+            {% if available_courses %}
+            {% for course in available_courses %}
             <div class="course-cart">
                 <img src="{% static 'images/database.webp' %}" alt="">
-                <h1>Title: Advanced database systems</h2>
-                    <h2>Subject: Computer Science</h2>
-                    <h2>Instructor: Braison Wabwire</h2>
-
-                    <a href="#"> <button>Enrol me</button></a>
+                <h1>Title: {{ course.title }}</h2>
+                    <h2>Subject: {{ course.description }}</h2>
+                    <h2>Instructor: {{ course.instructor.username }}</h2>
+                    <form action="{% url 'enroll_course' course.course_id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success">Enroll Me</button>
+                    </form>
             </div>
-            <div class="course-cart">
-                <img src="{% static 'images/database.webp' %}" alt="">
-                <h1>Title: Advanced database systems</h2>
-                    <h2>Subject: Computer Science</h2>
-                    <h2>Instructor: Braison Wabwire</h2>
-
-                    <a href="#"> <button>Enrol me</button></a>
-            </div>
-            <div class="course-cart">
-                <img src="{% static 'images/database.webp' %}" alt="">
-                <h1>Title: Advanced database systems</h2>
-                    <h2>Subject: Computer Science</h2>
-                    <h2>Instructor: Braison Wabwire</h2>
-
-                    <a href="#"> <button>Enrol me</button></a>
-            </div>
-            <div class="course-cart">
-                <img src="{% static 'images/database.webp' %}" alt="">
-                <h1>Title: Advanced database systems</h2>
-                    <h2>Subject: Computer Science</h2>
-                    <h2>Instructor: Braison Wabwire</h2>
-
-                    <a href="#"> <button>Enrol me</button></a>
-            </div>
+            {% endfor %}
+            {% else %}
+            <p>No available courses to enroll in.</p>
+            {% endif %}
         </div>
         <div class="performance-container" id="performance-container">
         </div>
