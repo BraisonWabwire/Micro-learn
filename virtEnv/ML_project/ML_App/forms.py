@@ -1,11 +1,12 @@
 from django import forms
 from django.forms.widgets import PasswordInput
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
-
-
+from .models import Instructor, Course, Profile
 
 class SignupForm(UserCreationForm):
+    is_instructor = forms.BooleanField(required=False, label='Are you an instructor?')
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Update password1 and password2 fields' widgets for custom placeholders
@@ -14,7 +15,7 @@ class SignupForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'username', 'email', 'password1', 'password2']
+        fields = ['first_name', 'last_name', 'username', 'email', 'password1', 'password2', 'is_instructor']
         widgets = {
             'first_name': forms.TextInput(attrs={'placeholder': 'Firstname'}),
             'last_name': forms.TextInput(attrs={'placeholder': 'Lastname'}),
@@ -23,11 +24,14 @@ class SignupForm(UserCreationForm):
             # The placeholders for password fields are set in the __init__ method now
         }
 
-
-
-from django import forms
-from .models import Instructor
-from django.contrib.auth.models import User
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        if commit:
+            user.save()
+            Profile.objects.create(user=user, is_instructor=self.cleaned_data['is_instructor'])
+            if self.cleaned_data['is_instructor']:
+                Instructor.objects.create(user=user, name=f"{user.first_name} {user.last_name}", email=user.email)
+        return user
 
 class InstructorForm(forms.ModelForm):
     username = forms.CharField(max_length=150, required=True, help_text="Username for login")
@@ -59,22 +63,13 @@ class InstructorForm(forms.ModelForm):
         instructor.user = user
         if commit:
             instructor.save()
+            Profile.objects.create(user=user, is_instructor=True)
         return instructor
 
-
-
-# Instructor login form
-
-from django.contrib.auth.forms import AuthenticationForm
-
 class InstructorLoginForm(AuthenticationForm):
-    # You can customize it further, but it's a simple form inheriting from AuthenticationForm
     username = forms.CharField(max_length=150, required=True, help_text="Enter your username.")
     password = forms.CharField(widget=forms.PasswordInput(), required=True, help_text="Enter your password.")
 
-
-
-from .models import Course
 class CourseForm(forms.ModelForm):
     class Meta:
         model = Course

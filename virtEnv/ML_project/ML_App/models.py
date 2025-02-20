@@ -1,6 +1,13 @@
 from django.contrib.auth.models import User
 from django.db import models
 
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    is_instructor = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.user.username
+
 class Instructor(models.Model):
     DEPARTMENT_CHOICES = [
         ('CS', 'Computer Science'),
@@ -8,7 +15,7 @@ class Instructor(models.Model):
         ('ME', 'Mechanical Engineering'),
     ]
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='instructor')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='instructor_profile')
     name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)  # Ensure uniqueness
     instructor_number = models.CharField(max_length=10, unique=True, editable=False)  
@@ -27,16 +34,21 @@ class Instructor(models.Model):
     def __str__(self):
         return self.name
     
-
 class Course(models.Model):
+    course_id = models.IntegerField(primary_key=True, unique=True)
     instructor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="courses")
     title = models.CharField(max_length=255)
     description = models.TextField()
-    video = models.FileField(upload_to="courses/videos/", blank=True, null=True)
-    course_content = models.TextField()  # Can be used with a rich text editor
-    course_material = models.FileField(upload_to="courses/materials/", blank=True, null=True)
+    video = models.FileField(upload_to="videos/", blank=True, null=True)
+    course_content = models.TextField()
+    course_material = models.FileField(upload_to="materials/", blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if not self.course_id:
+            last_course = Course.objects.order_by('-course_id').first()
+            self.course_id = last_course.course_id + 1 if last_course else 1001
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title
-

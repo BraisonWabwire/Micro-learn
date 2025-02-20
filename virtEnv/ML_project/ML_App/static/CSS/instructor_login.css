@@ -1,22 +1,21 @@
-/* Container Styling */
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@100..900&display=swap');
+/* Import Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100..900&display=swap');
 
+/* Form Container Styling */
 .form-container {
     background-color: #fff;
     padding: 40px;
     border-radius: 10px;
-    max-width: 500px; 
+    max-width: 500px;
     width: 100%;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    margin: 50px auto; 
+    margin: 50px auto;
 }
 
 /* Title Styling */
 .form-container h2 {
-    font-family: "Inter", serif;
+    font-family: "Inter", sans-serif;
     font-size: 20px;
     color: #333;
     margin-bottom: 20px;
@@ -34,14 +33,13 @@
 /* Label Styling */
 .form-group label {
     font-size: 14px;
-    font-weight: normal;
     color: #333;
-    font-family: "Inter", serif;
+    font-family: "Inter", sans-serif;
 }
 
 /* Input Fields */
 .form-group input {
-    width: 100%; /* Ensures inputs are of equal width */
+    width: 100%;
     padding: 10px;
     border-radius: 8px;
     border: 1px solid #ddd;
@@ -50,7 +48,6 @@
     transition: border-color 0.3s ease-in-out;
 }
 
-/* Input Focus Effect */
 .form-group input:focus {
     border-color: #007bff;
     box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
@@ -68,7 +65,7 @@ button {
     font-size: 14px;
     transition: background-color 0.3s;
     width: 100%;
-    font-family: "Inter", serif;
+    font-family: "Inter", sans-serif;
 }
 
 button:hover {
@@ -87,4 +84,59 @@ button:hover {
 
 .form-container a:hover {
     text-decoration: underline;
+}
+
+/* Messages Styling */
+.messages {
+    margin-bottom: 15px;
+}
+
+/* Alert Box Styling */
+.alert {
+    padding: 12px;
+    border-radius: 5px;
+    font-size: 14px;
+    text-align: center;
+    font-family: "Poppins", sans-serif;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Success Message */
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+/* Error / Danger Message */
+.alert-error, .alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Warning Message */
+.alert-warning {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+
+/* Info Message */
+.alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+/* Fade-out Animation */
+.fade-out {
+    opacity: 0;
+    transition: opacity 0.5s ease-out;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }

@@ -129,5 +129,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+# Hadling uploads
+import os
+MEDIA_URL = '/uploads/'  # URL to access media files
+MEDIA_ROOT = r"C:/Micro-learn/virtEnv/ML_project/ML_App/static/uploads"

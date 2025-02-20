@@ -5,7 +5,7 @@ urlpatterns = [
     path('',views.home, name='homepage'),
     path('signup/',views.signup,name='signup'),
     path('login/',views.loginUser, name='login'),
-    path('student/dashboard/',views.dashbord,name='dashboard'),
+    path('student/dashboard/',views.student_dashboard,name='student_dashboard'),
     path('logout/',views.logoutUser,name='logout'),
     path('admin_dashboard/',views.admin_dashboard,name='admin_dashboard'),
     path('admin_login/',views.admin_login,name='admin_login'),
@@ -16,5 +16,8 @@ urlpatterns = [
     path('instructor/login/', views.instructor_login, name='instructor_login'),
     path('instructor/instructor_logout/', views.logoutInstructor, name='instructor_logout'),
     path('instructor_dashboard/', views.instructor_dashboard, name='instructor_dashboard'),
-     path('add_course/', views.add_course, name='add_course'),
+    path('add_course/', views.add_course, name='add_course'),
+    path("edit-course/<int:course_id>/", views.edit_course, name="edit_course"),
+    path("delete-course/<int:course_id>/", views.delete_course, name="delete_course"),
+
 ]
