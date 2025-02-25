@@ -78,3 +78,15 @@ class Progress(models.Model):
 
     def __str__(self):
         return f"{self.student.username}'s progress in {self.course.title}"
+    def calculate_progress_percentage(self):
+        total_items = 3  # Content, Video, Material
+        completed_items = 0
+
+        if self.completed_content:
+            completed_items += 1
+        if self.completed_video:
+            completed_items += 1
+        if self.completed_material:
+            completed_items += 1
+
+        return (completed_items / total_items) * 100

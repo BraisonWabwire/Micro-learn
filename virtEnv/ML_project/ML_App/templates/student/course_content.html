@@ -47,7 +47,7 @@
 
         <!-- Progress Section -->
         <div class="progress-section">
-            <h2>Your Progress</h2>
+            <h2>Your Progress: {{ progress_percentage|floatformat:0 }}%</h2>
             <ul class="progress-list">
                 <li>
                     Content Completed
@@ -72,8 +72,7 @@
 
         <!-- Action Buttons (Exit and Save Progress) -->
         <div class="action-buttons">
-            <a href="#" class="btn btn-danger">Exit</a>
-            <a href="#" class="btn btn-success">Save Progress</a>
+            <a href="{% url 'student_dashboard' %}" class="btn btn-danger">Exit</a>
         </div>
     </div>
 </body>

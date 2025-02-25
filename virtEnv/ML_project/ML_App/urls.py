@@ -21,5 +21,5 @@ urlpatterns = [
     path("delete-course/<int:course_id>/", views.delete_course, name="delete_course"),
     path('enroll/<int:course_id>/', views.enroll_course, name='enroll_course'),
     path('course/<int:course_id>/', views.course_content, name='course_content'),
-   
+   path('completed-courses/', views.completed_courses, name='completed_courses'),
 ]   

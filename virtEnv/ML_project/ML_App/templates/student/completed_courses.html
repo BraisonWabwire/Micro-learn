@@ -1,0 +1,211 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enrolled Courses</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        body {
+            background-color: #f4f6f9;
+            padding-top: 60px; /* To prevent content from being hidden under fixed navbar */
+        }
+
+        /* Fixed Navbar */
+        .navbar {
+            background-color: white;
+            height: 70px;
+            padding: 10px 80px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #ddd;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        /* Title Styling */
+        .navbar-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Search Bar */
+        .search-container {
+            display: flex;
+            align-items: center;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 5px 12px;
+            background: white;
+            width: 300px;
+        }
+        .search-container input {
+            border: none;
+            outline: none;
+            padding: 5px;
+            font-size: 14px;
+            width: 100%;
+            color: #333;
+        }
+        .search-container i {
+            color: #777;
+            margin-right: 8px;
+        }
+
+        /* Exit Button */
+        .exit-button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 30px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            transition: background 0.3s;
+        }
+        .exit-button:hover {
+            background-color: #218838;
+        }
+        .exit-button i {
+            margin-right: 5px;
+        }
+
+        /* Container */
+        .container {
+            margin-top: 20px;
+        }
+
+        /* Course Cards */
+        .course-card {
+            border-radius: 12px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease-in-out;
+        }
+        .course-card:hover {
+            transform: scale(1.02);
+        }
+        .course-card img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+        }
+        .course-card .card-body {
+            padding: 10px;
+        }
+        .course-card h3 {
+            font-size: 16px;
+            font-weight: bold;
+            /* margin-bottom: 3px; */
+        }
+        .course-card h4 {
+            font-size: 12px;
+            color: #555;
+        }
+        .resume {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 5px;
+        }
+        .resume a {
+            text-decoration: none;
+            font-weight: bold;
+            background-color: #007bff;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            transition: background 0.3s;
+        }
+        .resume a:hover {
+            background-color: #0056b3;
+        }
+
+        /* Make 4 cards per row */
+        .course-item {
+            width: 25%;
+            padding: 10px;
+        }
+
+        @media (max-width: 992px) {
+            .course-item {
+                width: 50%;
+            }
+        }
+        @media (max-width: 576px) {
+            .course-item {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Fixed Navbar -->
+<div class="navbar">
+    <div class="navbar-title">Courses Completed</div>
+    <div class="search-container">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Search courses..." onkeyup="filterCourses()">
+    </div>
+    <a href="{% url 'student_dashboard' %}" class="exit-button">
+        <i class="fas fa-sign-out-alt"></i> Exit
+    </a>
+</div>
+
+<div class="container">
+    <div class="row" id="courseList">
+        {% if completed_courses_with_progress %}
+            {% for course_data in completed_courses_with_progress %}
+                <div class="course-item">
+                    <div class="card course-card">
+                        <img src="{% static 'images/lerning.webp' %}" alt="Course Image">
+                        <div class="card-body">
+                            <h3 class="course-title">{{ course_data.course.title }}</h3>
+                            <h4><strong>Instructor:</strong> {{ course_data.course.instructor.username }}</h4>
+                            <h4><strong>Description:</strong> {{ course_data.course.description }}</h4>
+                            <div class="resume">
+                                <h4><strong>Progress:</strong> {{ course_data.progress_percentage|floatformat:0 }}%</h4>
+                                <a href="{% url 'course_content' course_data.course.course_id %}">
+                                    Review Course
+                                </a>
+                            </div> 
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <h3>You have not completed any courses yet.</h3>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    function filterCourses() {
+        let input = document.getElementById("searchInput").value.toLowerCase();
+        let courses = document.getElementsByClassName("course-item");
+
+        for (let i = 0; i < courses.length; i++) {
+            let title = courses[i].getElementsByClassName("course-title")[0].innerText.toLowerCase();
+            if (title.includes(input)) {
+                courses[i].style.display = "block";
+            } else {
+                courses[i].style.display = "none";
+            }
+        }
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

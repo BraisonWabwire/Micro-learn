@@ -62,7 +62,7 @@
             </div>
             <div class="notification">
                 <a href="#"><i class="ph ph-bell-ringing"></i></a>
-                <div class="tutorial"><a href="#">Tutorial</a></div>
+                <div class="tutorial"><a href="{% url 'completed_courses' %}">Completed Courses</a></div>
             </div>
         </div>
         <!-- Progress container design -->
@@ -79,21 +79,21 @@
                             </div>
                         </div>
                         <div class="bottom-desc">
-                            <a href="#">see details</a>
-                            <a href=""><i class="ph ph-arrow-circle-right"></i></a>
+                            <a href="" onclick="showContent(event,'explore-courses-container')" >see details</a>
+                            <a href="" onclick="showContent(event,'explore-courses-container')"><i class="ph ph-arrow-circle-right"></i></a>
                         </div>
                     </div>
                     <div class="overview-card">
                         <div class="top-desc">
                             <i class="ph ph-check-fat"></i>
                             <div class="desc">
-                                <h2>10</h2>
+                                <h2>{{ completed_courses_count }}</h2>
                                 <h3>Courses completed</h3>
                             </div>
                         </div>
                         <div class="bottom-desc">
-                            <a href="#">see details</a>
-                            <a href=""><i class="ph ph-arrow-circle-right"></i></a>
+                            <a href="{% url 'completed_courses' %}">see details</a>
+                            <a href="{% url 'completed_courses' %}"><i class="ph ph-arrow-circle-right"></i></a>
                         </div>
                     </div>
                     <div class="overview-card">
@@ -127,21 +127,23 @@
             <div class="courses-in-progress">
                 <h2>Enrolled courses</h2>
                 <div class="courses-progress-card">
-                    {% if enrolled_courses %}
-                    {% for course in enrolled_courses %}
-                    <div class="card">
-                        <img src="{% static 'images/lerning.webp' %}" alt="" srcset="">
-                        <h3>{{ course.title }}</h3>
-                        <h3> Instructor: {{ course.instructor.username }}</h3>
-                        <h3>Title: {{ course.description }}</h3>
-                        <div class="resume">
-                            <h3>Progress 5%</h3>
-                            <a href="{% url 'course_content' course.course_id %}"><i class="ph ph-play-circle"></i></a>
-                        </div>
-                    </div>
-                    {% endfor %}
+                    {% if enrolled_courses_with_progress %}
+                        {% for course_data in enrolled_courses_with_progress %}
+                            <div class="card">
+                                <img src="{% static 'images/lerning.webp' %}" alt="" srcset="">
+                                <h3>{{ course_data.course.title }}</h3>
+                                <h3>Instructor: {{ course_data.course.instructor.username }}</h3>
+                                <h3>Description: {{ course_data.course.description }}</h3>
+                                <div class="resume">
+                                    <h3>Progress: {{ course_data.progress_percentage|floatformat:0 }}%</h3>
+                                    <a href="{% url 'course_content' course_data.course.course_id %}">
+                                        <i class="ph ph-play-circle"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
                     {% else %}
-                    <h3>You have not enrolled in any course</h3> 
+                        <h3>You have not enrolled in any course</h3>
                     {% endif %}
                 </div>
             </div>

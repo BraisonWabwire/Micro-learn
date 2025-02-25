@@ -253,13 +253,15 @@ body {
 }
 
 .tutorial {
-    width: 100px;
+    width: auto;
     height: 5vh;
     display: flex;
     align-items: center;
     justify-content: center;
     background-color: rgb(35, 168, 84);
     border-radius: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
 
 }
 

@@ -88,16 +88,45 @@ def student_dashboard(request):
     courses = Course.objects.all()
     enrolled_courses = Course.objects.filter(enrollments__student=request.user)
     available_courses = courses.exclude(enrollments__student=request.user)
-    
+
+    # Fetch progress for each enrolled course and separate completed courses
+    enrolled_courses_with_progress = []
+    completed_courses_with_progress = []  # List for completed courses
+
+    for course in enrolled_courses:
+        progress = Progress.objects.filter(student=request.user, course=course).first()
+        if progress:
+            progress_percentage = progress.calculate_progress_percentage()
+            # Check if the course is completed (100% progress)
+            if progress_percentage == 100:
+                completed_courses_with_progress.append({
+                    'course': course,
+                    'progress_percentage': progress_percentage,
+                })
+            else:
+                enrolled_courses_with_progress.append({
+                    'course': course,
+                    'progress_percentage': progress_percentage,
+                })
+        else:
+            # If no progress exists, assume the course is not started
+            enrolled_courses_with_progress.append({
+                'course': course,
+                'progress_percentage': 0,
+            })
+
     context = {
-        'title': 'Student_Dashboard',
+        'title': 'Student Dashboard',
         'total_courses': courses.count(),
         'available_courses': available_courses,
-        'enrolled_courses': enrolled_courses,
+        'enrolled_courses_with_progress': enrolled_courses_with_progress,  # Pass enrolled courses (not completed)
+        'completed_courses_with_progress': completed_courses_with_progress,  # Pass completed courses
         'enrolled_courses_count': enrolled_courses.count(),
+        'completed_courses_count': len(completed_courses_with_progress),  # Count of completed courses
     }
 
     return render(request, 'student/dashboard.html', context)
+
 
 
 # Handling user logout
@@ -351,9 +380,43 @@ def course_content(request, course_id):
         progress.completed_material = True
     progress.save()
 
+    # Calculate progress percentage
+    progress_percentage = progress.calculate_progress_percentage()
+
     context = {
         'course': course,
         'progress': progress,
+         'progress_percentage': progress_percentage, 
     }
     return render(request, 'student/course_content.html', context)
 
+
+
+
+@never_cache
+@login_required(login_url='student_login')
+def completed_courses(request):
+    profile = get_object_or_404(Profile, user=request.user)
+
+    # Ensure the user is a student
+    if profile.is_instructor:
+        return redirect('student_login')
+
+    # Fetch completed courses
+    completed_courses_with_progress = []
+    enrolled_courses = Course.objects.filter(enrollments__student=request.user)
+
+    for course in enrolled_courses:
+        progress = Progress.objects.filter(student=request.user, course=course).first()
+        if progress and progress.calculate_progress_percentage() == 100:
+            completed_courses_with_progress.append({
+                'course': course,
+                'progress_percentage': 100,
+            })
+
+    context = {
+        'title': 'Completed Courses',
+        'completed_courses_with_progress': completed_courses_with_progress,
+    }
+
+    return render(request, 'student/completed_courses.html', context)
