@@ -90,3 +90,44 @@ class Progress(models.Model):
             completed_items += 1
 
         return (completed_items / total_items) * 100
+    
+# Assignment Model
+class Assignment(models.Model):
+    course = models.ForeignKey('Course', on_delete=models.CASCADE, related_name='assignments')
+    title = models.CharField(max_length=255)  # Add a title for the assignment
+    description = models.TextField(blank=True, null=True)  # Optional description
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+class Question(models.Model):
+    assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE, related_name='questions')
+    text = models.TextField()  # The question text
+
+    def __str__(self):
+        return self.text
+
+class Choice(models.Model):
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='choices')
+    text = models.CharField(max_length=255)  # The choice text
+    is_correct = models.BooleanField(default=False)  # Whether this choice is correct
+
+    def __str__(self):
+        return self.text
+
+class StudentAssignment(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='student_assignments')
+    assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE, related_name='student_assignments')
+    submitted_at = models.DateTimeField(auto_now_add=True)  # Track submission time
+
+    def __str__(self):
+        return f"{self.student.username} - {self.assignment.title}"
+
+class StudentAnswer(models.Model):
+    student_assignment = models.ForeignKey(StudentAssignment, on_delete=models.CASCADE, related_name='answers')
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    selected_choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.student_assignment.student.username} - {self.question.text}"

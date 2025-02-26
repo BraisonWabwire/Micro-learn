@@ -2,7 +2,8 @@ from django import forms
 from django.forms.widgets import PasswordInput
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
-from .models import Instructor, Course, Profile
+from .models import Instructor, Course, Profile,Assignment, Question, Choice
+
 
 class SignupForm(UserCreationForm):
     is_instructor = forms.BooleanField(required=False, label='Are you an instructor?')
@@ -76,4 +77,48 @@ class CourseForm(forms.ModelForm):
         fields = ['title', 'description', 'video', 'course_content', 'course_material']
         widgets = {
             'course_content': forms.Textarea(attrs={'class': 'rich-text-editor'}),
+        }
+
+
+
+# Handling assignment
+class AssignmentForm(forms.ModelForm):
+    class Meta:
+        model = Assignment
+        fields = ['title', 'description', 'course']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'Enter assignment title'}),
+            'description': forms.Textarea(attrs={'class': 'custom-textarea', 'rows': 3, 'placeholder': 'Describe the assignment'}),
+            'course': forms.Select(attrs={'class': 'custom-select'}),
+        }
+
+class QuestionForm(forms.ModelForm):
+    class Meta:
+        model = Question
+        fields = ['text']
+        widgets = {
+            'text': forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'Enter question'}),
+        }
+
+class ChoiceForm(forms.ModelForm):
+    class Meta:
+        model = Choice
+        fields = ['text', 'is_correct']
+        widgets = {
+            'text': forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'Enter choice text'}),
+            'is_correct': forms.CheckboxInput(attrs={'class': 'custom-checkbox'}),
+        }
+
+
+class CourseForm(forms.ModelForm):
+    class Meta:
+        model = Course
+        fields = ['title', 'description', 'video', 'course_content', 'course_material']
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'placeholder':'Write a 3-4 words title'
+            }),
+            'description': forms.Textarea(attrs={
+                'placeholder': 'Write a short 10-word description.'
+            })
         }

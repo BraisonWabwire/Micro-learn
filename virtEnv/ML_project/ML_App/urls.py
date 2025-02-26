@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('',views.home, name='homepage'),
@@ -21,5 +23,11 @@ urlpatterns = [
     path("delete-course/<int:course_id>/", views.delete_course, name="delete_course"),
     path('enroll/<int:course_id>/', views.enroll_course, name='enroll_course'),
     path('course/<int:course_id>/', views.course_content, name='course_content'),
-   path('completed-courses/', views.completed_courses, name='completed_courses'),
+    path('completed-courses/', views.completed_courses, name='completed_courses'),
+    path('student/view_assignment/<int:assignment_id>/', views.view_assignment, name='view_assignment'),
+    path('student/assignment_result/<int:assignment_id>/', views.assignment_result, name='assignment_result'),
 ]   
+
+# For handling video display
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

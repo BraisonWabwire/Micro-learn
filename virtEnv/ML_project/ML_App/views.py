@@ -3,11 +3,14 @@ from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from .models import Instructor, Course, Profile,Enrollment,Progress
-from .forms import InstructorForm, CourseForm, SignupForm, InstructorLoginForm
+from .models import Instructor, Course, Profile,Enrollment,Progress,Assignment, Question, Choice,StudentAnswer,StudentAssignment
+from .forms import InstructorForm, CourseForm, SignupForm, InstructorLoginForm, AssignmentForm, ChoiceForm,QuestionForm
 from django.views.decorators.cache import never_cache
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+
+
+
 
 
 # Create your views here.
@@ -32,8 +35,8 @@ def signup(request):
                 user = form.save()
                 messages.success(request, f"Account for {user.username} created successfully")
                 return redirect('student_login')
-            else:
-                print(form.errors)
+            else:    
+                messages.error(request, f"Please check your credentials")
 
         context = {
             'title': 'student-signup',
@@ -115,6 +118,7 @@ def student_dashboard(request):
                 'progress_percentage': 0,
             })
 
+    
     context = {
         'title': 'Student Dashboard',
         'total_courses': courses.count(),
@@ -176,7 +180,7 @@ def admin_dashboard(request):
 
     instructors = Instructor.objects.all()  # Fetch existing instructors
     context = {
-        'title': 'admin-login',
+        'title': 'admin-dashboard',
         'form': form,
         'instructors': instructors,
        
@@ -281,12 +285,43 @@ def instructor_dashboard(request):
     # Get all courses associated with this instructor
     courses = Course.objects.filter(instructor=instructor)
 
+     # Get enrolled students for these courses
+    enrollments = Enrollment.objects.filter(course__in=courses).select_related('student', 'course')
+
+     # Fetch progress data for each enrolled student
+
+    #  Assignment form
+     # Handle assignment and choices form submission
+    if request.method == "POST":
+        assignment_form = AssignmentForm(request.POST)
+        choice_forms = [ChoiceForm(request.POST, prefix=str(i)) for i in range(4)]  # 4 choices
+
+        if assignment_form.is_valid() and all(cf.is_valid() for cf in choice_forms):
+            assignment = assignment_form.save(commit=False)
+            assignment.save()  # Save assignment first
+
+            for choice_form in choice_forms:
+                choice = choice_form.save(commit=False)
+                choice.assignment = assignment  # Assign choices to the assignment
+                choice.save()
+
+            return redirect('instructor_dashboard')
+
+    else:
+        assignment_form = AssignmentForm()
+        choice_forms = [ChoiceForm(prefix=str(i)) for i in range(4)]  # 4 empty choice forms
+
+  
     context = {
         'title':'instructor_dashbord',
         'instructor': instructor,
         'username': request.user.username,  # Accessing the username
         'email': request.user.email,        # Accessing the email
         'courses': courses,  # Adding courses to the context
+        'enrollments': enrollments, 
+        'assignment_form': assignment_form,
+        'choice_forms': choice_forms,
+
     }
 
     return render(request, 'instructor/instructor_dashboard.html', context)
@@ -301,12 +336,17 @@ def add_course(request):
             course = form.save(commit=False)
             course.instructor = request.user
             course.save()
-            messages.success(request, "Course added successfully!")
-            return redirect('instructor_dashboard')
+            message=messages.success(request, "Course added successfully!")
+            return redirect('add_course')
     else:
         form = CourseForm()
+
+    context={
+        'title':'add-course',
+        'form':form,
+    }
     
-    return render(request, 'instructor/add_course.html', {'form': form})
+    return render(request, 'instructor/add_course.html', context)
 
 @login_required(login_url='instructor_login')
 def edit_course(request, course_id):
@@ -342,21 +382,16 @@ def enroll_course(request, course_id):
     # Check if the student is already enrolled
     if Enrollment.objects.filter(student=request.user, course=course).exists():
         messages.warning(request, 'You are already enrolled in this course.')
+        return redirect('student_dashboard')
+
     else:
         # Enroll the student in the course
         Enrollment.objects.create(student=request.user, course=course)
         messages.success(request, f'Successfully enrolled in {course.title}.')
-
-    return redirect('student_dashboard')
-
-
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
-from .models import Course, Enrollment, Progress
+        return redirect('student_dashboard')
 
 
 # Course content
-
 @login_required(login_url='student_login')
 def course_content(request, course_id):
     course = get_object_or_404(Course, course_id=course_id)
@@ -392,7 +427,7 @@ def course_content(request, course_id):
 
 
 
-
+# Displaying the completed courses
 @never_cache
 @login_required(login_url='student_login')
 def completed_courses(request):
@@ -420,3 +455,122 @@ def completed_courses(request):
     }
 
     return render(request, 'student/completed_courses.html', context)
+
+
+# Handling assignments
+@login_required(login_url='instructor_login')
+def create_assignment(request, course_id):
+    course = get_object_or_404(Course, course_id=course_id)
+
+    if request.method == 'POST':
+        assignment_form = AssignmentForm(request.POST)
+        if assignment_form.is_valid():
+            assignment = assignment_form.save(commit=False)
+            assignment.course = course
+            assignment.save()
+            return redirect('add_questions', assignment_id=assignment.id)
+    else:
+        assignment_form = AssignmentForm()
+
+    context = {
+        'course': course,
+        'assignment_form': assignment_form,
+    }
+    return render(request, 'instructor/instructor_dashboard.html', context)
+
+@login_required(login_url='instructor_login')
+def add_questions(request, assignment_id):
+    assignment = get_object_or_404(Assignment, id=assignment_id)
+
+    if request.method == 'POST':
+        question_form = QuestionForm(request.POST)
+        if question_form.is_valid():
+            question = question_form.save(commit=False)
+            question.assignment = assignment
+            question.save()
+            return redirect('add_choices', question_id=question.id)
+    else:
+        question_form = QuestionForm()
+
+    context = {
+        'assignment': assignment,
+        'question_form': question_form,
+    }
+    return render(request, 'instructor/instructor_dashboard.html', context)
+
+@login_required(login_url='instructor_login')
+def add_choices(request, question_id):
+    question = get_object_or_404(Question, id=question_id)
+
+    if request.method == 'POST':
+        choice_form = ChoiceForm(request.POST)
+        if choice_form.is_valid():
+            choice = choice_form.save(commit=False)
+            choice.question = question
+            choice.save()
+            return redirect('add_choices', question_id=question.id)
+    else:
+        choice_form = ChoiceForm()
+
+    context = {
+        'question': question,
+        'choice_form': choice_form,
+    }
+    return render(request, 'instructor/instructor_dashboard.html', context)
+
+
+
+
+# View assignment
+@login_required(login_url='student_login')
+def view_assignment(request, assignment_id):
+    assignment = get_object_or_404(Assignment, id=assignment_id)
+    questions = assignment.questions.all()
+
+    if request.method == 'POST':
+        student_assignment = StudentAssignment.objects.create(
+            student=request.user,
+            assignment=assignment
+        )
+        for question in questions:
+            selected_choice_id = request.POST.get(f'question_{question.id}')
+            if selected_choice_id:
+                selected_choice = Choice.objects.get(id=selected_choice_id)
+                StudentAnswer.objects.create(
+                    student_assignment=student_assignment,
+                    question=question,
+                    selected_choice=selected_choice
+                )
+        return redirect('assignment_result', assignment_id=assignment.id)
+
+    context = {
+        'assignment': assignment,
+        'questions': questions,
+    }
+    return render(request, 'student/view_assignment.html', context)
+
+@login_required(login_url='student_login')
+def assignment_result(request, assignment_id):
+    assignment = get_object_or_404(Assignment, id=assignment_id)
+    student_assignment = StudentAssignment.objects.filter(
+        student=request.user,
+        assignment=assignment
+    ).first()
+
+    if not student_assignment:
+        return redirect('student_dashboard')
+
+    # Calculate score
+    total_questions = assignment.questions.count()
+    correct_answers = StudentAnswer.objects.filter(
+        student_assignment=student_assignment,
+        selected_choice__is_correct=True
+    ).count()
+    score = (correct_answers / total_questions) * 100 if total_questions > 0 else 0
+
+    context = {
+        'assignment': assignment,
+        'student_assignment': student_assignment,
+        'score': score,
+    }
+    return render(request, 'student/assignment_result.html', context)

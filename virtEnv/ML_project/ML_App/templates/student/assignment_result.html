@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Assignment Result: {{ assignment.title }}</h1>
+<h2>Your Score: {{ score|floatformat:2 }}%</h2>
+<h3>Correct Answers: {{ correct_answers }}</h3>
+<h3>Total Questions: {{ total_questions }}</h3>
+{% endblock %}
