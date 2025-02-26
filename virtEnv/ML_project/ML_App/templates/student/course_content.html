@@ -69,10 +69,10 @@
                 </li>
             </ul>
         </div>
-
+        <p>Assignment ID: {{ assignment.assignment_id }}
         <!-- Action Buttons (Exit and Save Progress) -->
         <div class="action-buttons">
-            <a href="{% url 'student_dashboard' %}" class="btn btn-primary" onclick="markComplete(event)"> Take assignment</a>
+            
             <a href="{% url 'student_dashboard' %}" class="btn btn-danger" onclick="markComplete(event)">Exit</a>
         </div>
     </div>

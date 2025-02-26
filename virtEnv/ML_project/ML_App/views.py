@@ -311,9 +311,10 @@ def instructor_dashboard(request):
         assignment_form = AssignmentForm()
         choice_forms = [ChoiceForm(prefix=str(i)) for i in range(4)]  # 4 empty choice forms
 
-  
+    assignmentsList= Assignment.objects.all()
+
     context = {
-        'title':'instructor_dashbord',
+        'title':'instructor_dashboard',
         'instructor': instructor,
         'username': request.user.username,  # Accessing the username
         'email': request.user.email,        # Accessing the email
@@ -321,6 +322,7 @@ def instructor_dashboard(request):
         'enrollments': enrollments, 
         'assignment_form': assignment_form,
         'choice_forms': choice_forms,
+        'assignment_list': assignmentsList
 
     }
 
@@ -417,11 +419,13 @@ def course_content(request, course_id):
 
     # Calculate progress percentage
     progress_percentage = progress.calculate_progress_percentage()
+    assignments = Assignment.objects.filter(course=course)
 
     context = {
         'course': course,
         'progress': progress,
-         'progress_percentage': progress_percentage, 
+        'progress_percentage': progress_percentage,
+        'assignments':assignments 
     }
     return render(request, 'student/course_content.html', context)
 
@@ -456,121 +460,120 @@ def completed_courses(request):
 
     return render(request, 'student/completed_courses.html', context)
 
-
-# Handling assignments
+# Create assignment
 @login_required(login_url='instructor_login')
 def create_assignment(request, course_id):
     course = get_object_or_404(Course, course_id=course_id)
+    assignment = None
+    question = None
 
-    if request.method == 'POST':
+    # Handle Assignment Form Submission
+    if 'assignment_form' in request.POST:
         assignment_form = AssignmentForm(request.POST)
         if assignment_form.is_valid():
             assignment = assignment_form.save(commit=False)
             assignment.course = course
             assignment.save()
-            return redirect('add_questions', assignment_id=assignment.id)
+            return redirect('create_assignment', course_id=course.course_id)
     else:
         assignment_form = AssignmentForm()
 
-    context = {
-        'course': course,
-        'assignment_form': assignment_form,
-    }
-    return render(request, 'instructor/instructor_dashboard.html', context)
+    # Get the latest assignment for this course (if available)
+    assignments = Assignment.objects.filter(course=course)
+    if assignments.exists():
+        assignment = assignments.latest('created_at')
 
-@login_required(login_url='instructor_login')
-def add_questions(request, assignment_id):
-    assignment = get_object_or_404(Assignment, id=assignment_id)
-
-    if request.method == 'POST':
+    # Handle Question Form Submission
+    if 'question_form' in request.POST:
+        assignment_id = request.POST.get('assignment_id')
+        assignment = get_object_or_404(Assignment, id=assignment_id)
         question_form = QuestionForm(request.POST)
         if question_form.is_valid():
             question = question_form.save(commit=False)
             question.assignment = assignment
             question.save()
-            return redirect('add_choices', question_id=question.id)
+            return redirect('create_assignment', course_id=course.course_id)
     else:
         question_form = QuestionForm()
 
-    context = {
-        'assignment': assignment,
-        'question_form': question_form,
-    }
-    return render(request, 'instructor/instructor_dashboard.html', context)
+    # Get the latest question for this assignment (if available)
+    if assignment:
+        questions = Question.objects.filter(assignment=assignment)
+        if questions.exists():
+            question = questions.latest('id')
 
-@login_required(login_url='instructor_login')
-def add_choices(request, question_id):
-    question = get_object_or_404(Question, id=question_id)
-
-    if request.method == 'POST':
+    # Handle Choice Form Submission
+    if 'choice_form' in request.POST:
+        question_id = request.POST.get('question_id')
+        question = get_object_or_404(Question, id=question_id)
         choice_form = ChoiceForm(request.POST)
         if choice_form.is_valid():
             choice = choice_form.save(commit=False)
             choice.question = question
             choice.save()
-            return redirect('add_choices', question_id=question.id)
+            return redirect('create_assignment', course_id=course.course_id)
     else:
         choice_form = ChoiceForm()
 
+    # Fetch all related data
+    questions = Question.objects.filter(assignment__course=course)
+    choices = Choice.objects.filter(question__assignment__course=course)
+
     context = {
-        'question': question,
+        'course': course,
+        'assignment_form': assignment_form,
+        'question_form': question_form,
         'choice_form': choice_form,
+        'assignments': assignments,
+        'questions': questions,
+        'choices': choices,
+        'assignment': assignment,
+        'question': question,
     }
-    return render(request, 'instructor/instructor_dashboard.html', context)
+    return render(request, 'instructor/create_assignment.html', context)
 
 
 
-
-# View assignment
-@login_required(login_url='student_login')
-def view_assignment(request, assignment_id):
+def delete_assignment(request, assignment_id):
     assignment = get_object_or_404(Assignment, id=assignment_id)
-    questions = assignment.questions.all()
+    assignment.delete()
+    return redirect('instructor_dashboard') 
 
-    if request.method == 'POST':
-        student_assignment = StudentAssignment.objects.create(
-            student=request.user,
-            assignment=assignment
-        )
+
+
+
+@login_required
+def take_assignment(request, assignment_id):
+    # Get the assignment
+    assignment = get_object_or_404(Assignment, assignment_id=assignment_id)
+
+    # Check if the student has already submitted the assignment
+    existing_submission = StudentAssignment.objects.filter(student=request.user, assignment=assignment).first()
+    if existing_submission:
+        return redirect('assignment_result', existing_submission.id)  # ✅ Fix: Correct redirect
+
+    questions = assignment.questions.all()  # Get questions related to the assignment
+
+    if request.method == "POST":
+        # Create a new StudentAssignment record
+        student_assignment = StudentAssignment.objects.create(student=request.user, assignment=assignment)
+
+        # Store student answers
         for question in questions:
-            selected_choice_id = request.POST.get(f'question_{question.id}')
+            selected_choice_id = request.POST.get(f"question_{question.id}")
             if selected_choice_id:
-                selected_choice = Choice.objects.get(id=selected_choice_id)
+                selected_choice = get_object_or_404(Choice, id=selected_choice_id)  # Fix: Use `get_object_or_404`
                 StudentAnswer.objects.create(
                     student_assignment=student_assignment,
                     question=question,
                     selected_choice=selected_choice
                 )
-        return redirect('assignment_result', assignment_id=assignment.id)
+
+        return redirect('assignment_result', student_assignment.id)  # Fix: Correct redirect
 
     context = {
         'assignment': assignment,
         'questions': questions,
     }
-    return render(request, 'student/view_assignment.html', context)
 
-@login_required(login_url='student_login')
-def assignment_result(request, assignment_id):
-    assignment = get_object_or_404(Assignment, id=assignment_id)
-    student_assignment = StudentAssignment.objects.filter(
-        student=request.user,
-        assignment=assignment
-    ).first()
-
-    if not student_assignment:
-        return redirect('student_dashboard')
-
-    # Calculate score
-    total_questions = assignment.questions.count()
-    correct_answers = StudentAnswer.objects.filter(
-        student_assignment=student_assignment,
-        selected_choice__is_correct=True
-    ).count()
-    score = (correct_answers / total_questions) * 100 if total_questions > 0 else 0
-
-    context = {
-        'assignment': assignment,
-        'student_assignment': student_assignment,
-        'score': score,
-    }
-    return render(request, 'student/assignment_result.html', context)
+    return render(request, 'take_assignment.html', context)

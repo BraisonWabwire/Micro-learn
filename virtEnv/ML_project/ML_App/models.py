@@ -90,7 +90,9 @@ class Progress(models.Model):
             completed_items += 1
 
         return (completed_items / total_items) * 100
-    
+
+
+
 # Assignment Model
 class Assignment(models.Model):
     course = models.ForeignKey('Course', on_delete=models.CASCADE, related_name='assignments')
@@ -116,6 +118,10 @@ class Choice(models.Model):
     def __str__(self):
         return self.text
 
+
+
+
+# handling 
 class StudentAssignment(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='student_assignments')
     assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE, related_name='student_assignments')

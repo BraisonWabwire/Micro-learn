@@ -58,7 +58,7 @@
             </div>
             <div class="notification">
                 <a href="#"><i class="ph ph-bell-ringing"></i></a>
-                <div class="tutorial"><a href="#">Tutorial</a></div>
+                <div class="tutorial"><a href="#">view assignment</a></div>
             </div>
         </div>
         <!-- Manage courses -->
@@ -83,9 +83,11 @@
                             <td>{{ course.title }}</td>
                             <td>{{ course.description|truncatewords:20 }}</td>
                             <td>
+                                <a href="{% url 'create_assignment' course.course_id %}" class="btn-edit">Assignment</a>
                                 <a href="{% url 'edit_course' course.course_id %}" class="btn-edit">Edit</a>
                                 <a href="{% url 'delete_course' course.course_id %}" class="btn-delete"
                                     onclick="return confirm('Are you sure?')">Delete</a>
+
                             </td>
                         </tr>
                         {% empty %}
@@ -141,53 +143,46 @@
             </div>
         </div>
         <div class="manage-assesments" id="manage-assesments">
-            <!-- Assignment Form -->
-            <div class="form-container">
-                <h3>Create an Assignment</h3>
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="form-group">{{ assignment_form.as_p }}</div>
-                    <button type="submit" class="btn">Create Assignment</button>
-                </form>
-            </div>
-    
-            <!-- Question Form -->
-            <div class="form-container">
-                <h3>Add Questions to <strong>{{ assignment.title }}</strong></h3>
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="form-group">{{ question_form.as_p }}</div>
-                    <button type="submit" class="btn">Add Question</button>
-                </form>
-            </div>
-    
-            <!-- Choices Form -->
-            <div class="form-container">
-                <h3>Add Choices for "<strong>{{ question.text }}</strong>"</h3>
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="form-group">{{ choice_form.as_p }}</div>
-                    <button type="submit" class="btn">Add Choice</button>
-                </form>
-            </div>
-    
-            <!-- Display Questions and Choices -->
-            <div class="form-container">
-                <h3>Questions and Choices</h3>
-                {% for question in assignment.questions.all %}
-                    <div class="question-box">
-                        <h4>Q{{ forloop.counter }}: {{ question.text }}</h4>
-                        <ul class="choice-list">
-                            {% for choice in question.choices.all %}
-                                <li class="{% if choice.is_correct %}correct-choice{% endif %}">
-                                    {{ choice.text }} {% if choice.is_correct %} ✅{% endif %}
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                {% endfor %}
+            <div class="table-container">
+                <h2 class="text-xl font-semibold text-gray-800">All assignments</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Course</th>
+                            <th>Created at</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        {% for assignment in assignment_list %}
+                        <tr>
+                            <td>{{ assignment.id }}</td>
+                            <td>{{ assignment.title }}</td>
+                            <td>{{ assignment.description}}</td>
+                            <td>{{assignment.course}}</td>
+                            <td>{{ assignment.created_at }}</td>
+                            <td><a href="{% url 'delete_assignment' assignment.id %}" class="btn-delete">Delete</a></td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4">No assignments available.</td>
+                        </tr>
+                        {% endfor %}
+                        
+                    </tbody>
+                </table>
             </div>
         </div>
+
+        <script>
+            function confirmDelete() {
+                return confirm("Are you sure you want to delete this assignment?");
+            }
+        </script>
 </body>
 
 </html>

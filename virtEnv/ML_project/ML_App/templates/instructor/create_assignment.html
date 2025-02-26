@@ -1,0 +1,83 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Assignment - {{ course.title }}</title>
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="{% static 'css/create_assignment.css' %}">
+</head>
+
+<body>
+    
+    <div class="container">
+        <h1>Create Assignment for "{{ course.title }}"</h1>
+
+        <!-- Assignment Form -->
+        <div class="form-container">
+            <h2><a href="{% url 'instructor_dashboard' %}">Back to student dashboard</a></h2>
+            <h2>Create Assignment</h2>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="assignment_form" value="true">
+                <div class="form-group">{{ assignment_form.as_p }}</div>
+                <button type="submit" class="btn btn-primary">Create Assignment</button>
+            </form>
+        </div>
+
+        <!-- Question Form (If Assignment Exists) -->
+        {% if assignment %}
+        <div class="form-container">
+            <h2>Add Questions to "{{ assignment.title }}"</h2>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="question_form" value="true">
+                <input type="hidden" name="assignment_id" value="{{ assignment.id }}">
+                <div class="form-group">{{ question_form.as_p }}</div>
+                <button type="submit" class="btn btn-primary">Add Question</button>
+            </form>
+        </div>
+        {% endif %}
+
+        <!-- Choice Form (If Question Exists) -->
+        {% if question %}
+        <div class="form-container">
+            <h2>Add Choices for "{{ question.text }}"</h2>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="choice_form" value="true">
+                <input type="hidden" name="question_id" value="{{ question.id }}">
+                <div class="form-group">{{ choice_form.as_p }}</div>
+                <button type="submit" class="btn btn-primary">Add Choice</button>
+            </form>
+        </div>
+        {% endif %}
+
+        <!-- Display Existing Assignments, Questions, and Choices -->
+        <div class="form-container">
+            <h2>Existing Assignments</h2>
+            {% for assignment in assignments %}
+            <div class="assignment-box">
+                <h3>{{ assignment.title }}</h3>
+                {% for question in assignment.questions.all %}
+                <div class="question-box">
+                    <h4>Q{{ forloop.counter }}: {{ question.text }}</h4>
+                    <ul class="choice-list">
+                        {% for choice in question.choices.all %}
+                        <li class="{% if choice.is_correct %}correct-choice{% endif %}">
+                            {{ choice.text }} {% if choice.is_correct %} ✅{% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</body>
+
+</html>

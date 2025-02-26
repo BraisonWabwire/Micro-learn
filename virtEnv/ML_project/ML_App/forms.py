@@ -79,7 +79,18 @@ class CourseForm(forms.ModelForm):
             'course_content': forms.Textarea(attrs={'class': 'rich-text-editor'}),
         }
 
-
+class CourseForm(forms.ModelForm):
+    class Meta:
+        model = Course
+        fields = ['title', 'description', 'video', 'course_content', 'course_material']
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'placeholder':'Write a 3-4 words title'
+            }),
+            'description': forms.Textarea(attrs={
+                'placeholder': 'Write a short 10-word description.'
+            })
+        }
 
 # Handling assignment
 class AssignmentForm(forms.ModelForm):
@@ -88,7 +99,7 @@ class AssignmentForm(forms.ModelForm):
         fields = ['title', 'description', 'course']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'Enter assignment title'}),
-            'description': forms.Textarea(attrs={'class': 'custom-textarea', 'rows': 3, 'placeholder': 'Describe the assignment'}),
+            'description': forms.Textarea(attrs={'class': 'custom-textarea', 'rows': 3, 'placeholder': 'Describe the assignment in 10 words'}),
             'course': forms.Select(attrs={'class': 'custom-select'}),
         }
 
@@ -110,15 +121,4 @@ class ChoiceForm(forms.ModelForm):
         }
 
 
-class CourseForm(forms.ModelForm):
-    class Meta:
-        model = Course
-        fields = ['title', 'description', 'video', 'course_content', 'course_material']
-        widgets = {
-            'title': forms.TextInput(attrs={
-                'placeholder':'Write a 3-4 words title'
-            }),
-            'description': forms.Textarea(attrs={
-                'placeholder': 'Write a short 10-word description.'
-            })
-        }
+

@@ -21,11 +21,12 @@ urlpatterns = [
     path('add_course/', views.add_course, name='add_course'),
     path("edit-course/<int:course_id>/", views.edit_course, name="edit_course"),
     path("delete-course/<int:course_id>/", views.delete_course, name="delete_course"),
+    path('course/<int:course_id>/create_assignment/', views.create_assignment, name='create_assignment'),
+    path('assignments/delete/<int:assignment_id>/', views.delete_assignment, name='delete_assignment'),
     path('enroll/<int:course_id>/', views.enroll_course, name='enroll_course'),
     path('course/<int:course_id>/', views.course_content, name='course_content'),
     path('completed-courses/', views.completed_courses, name='completed_courses'),
-    path('student/view_assignment/<int:assignment_id>/', views.view_assignment, name='view_assignment'),
-    path('student/assignment_result/<int:assignment_id>/', views.assignment_result, name='assignment_result'),
+     path('assignments/take/<int:assignment_id>/', views.take_assignment, name='take_assignment'),
 ]   
 
 # For handling video display
