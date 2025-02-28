@@ -524,46 +524,25 @@ body {
     height: 88vh;
     background-color: #505355;
 }
+
+
+
 /* Assigment container design */
 .assignement-container {
     width: 100%;
     height: 88vh;
     background-color: #f0f8ff;
-    padding: 20px;
+    /* padding: 20px; */
     display: flex;
     flex-direction: column;
     align-items: center;
     /* gap: 2rem; */
-}
-.assignement-container .filter{
-    width: 30%;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-evenly;
-}
-.assignement-container .filter a{
-    text-decoration: none;
-    color:#152238;
-    
-}
-.assignement-container .filter h2{
-    font-family: "Heebo", serif;
-    font-size: 0.9em;
-    font-weight: 400;
-    text-align: center;
-}
-
-
-.assignement-container .filter a:focus{
-    border-bottom: 2px solid black;
 }
 .assignement-container .assignment-table{
     background-color: #a3a9ad;
     width: 90%;
     height: 70vh;    
     margin-top: 20px;
-    margin-left: 60px;
 
 }
 .assignement-container .assignment-table .assignment-table-1{

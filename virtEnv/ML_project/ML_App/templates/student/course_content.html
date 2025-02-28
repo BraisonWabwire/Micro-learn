@@ -19,7 +19,7 @@
         <div class="card">
             <h2>Course Content</h2>
             <p>{{ course.course_content }}</p>
-            <a href="?content=1" class="btn btn-primary" onclick="markComplete(event)" >Mark Content as Completed</a>
+            <a href="?content=1" class="btn btn-primary" onclick="markComplete(event)">Mark Content as Completed</a>
         </div>
 
         <!-- Video Section -->
@@ -32,7 +32,7 @@
                     Your browser does not support the video tag.
                 </video>
             </div>
-            <a href="?video=1" class="btn btn-primary" onclick="markComplete(event)" >Mark Video as Completed</a>
+            <a href="?video=1" class="btn btn-primary" onclick="markComplete(event)">Mark Video as Completed</a>
         </div>
         {% endif %}
 
@@ -41,7 +41,7 @@
         <div class="card">
             <h2>Course Material</h2>
             <a href="{{ course.course_material.url }}" class="btn btn-secondary" download>Download Material</a>
-            <a href="?material=1" class="btn btn-primary" onclick="markComplete(event)" >Mark Material as Downloaded</a>
+            <a href="?material=1" class="btn btn-primary" onclick="markComplete(event)">Mark Material as Downloaded</a>
         </div>
         {% endif %}
 
@@ -49,44 +49,50 @@
         <div class="progress-section">
             <h2>Your Progress: {{ progress_percentage|floatformat:0 }}%</h2>
             <ul class="progress-list">
-                <li>
-                    Content Completed
-                    <span class="badge {% if progress.completed_content %}badge-success{% else %}badge-secondary{% endif %}">
-                        {% if progress.completed_content %}Yes{% else %}No{% endif %}
-                    </span>
-                </li>
-                <li>
-                    Video Completed
-                    <span class="badge {% if progress.completed_video %}badge-success{% else %}badge-secondary{% endif %}">
-                        {% if progress.completed_video %}Yes{% else %}No{% endif %}
-                    </span>
-                </li>
-                <li>
-                    Material Completed
-                    <span class="badge {% if progress.completed_material %}badge-success{% else %}badge-secondary{% endif %}">
-                        {% if progress.completed_material %}Yes{% else %}No{% endif %}
-                    </span>
-                </li>
+                <li>Content Completed <span class="badge {% if progress.completed_content %}badge-success{% else %}badge-secondary{% endif %}">{% if progress.completed_content %}Yes{% else %}No{% endif %}</span></li>
+                <li>Video Completed <span class="badge {% if progress.completed_video %}badge-success{% else %}badge-secondary{% endif %}">{% if progress.completed_video %}Yes{% else %}No{% endif %}</span></li>
+                <li>Material Completed <span class="badge {% if progress.completed_material %}badge-success{% else %}badge-secondary{% endif %}">{% if progress.completed_material %}Yes{% else %}No{% endif %}</span></li>
             </ul>
         </div>
-        <p>Assignment ID: {{ assignment.assignment_id }}
-        <!-- Action Buttons (Exit and Save Progress) -->
+
+        <!-- Assignments Section -->
+        <div class="assignments-section">
+            <h2>Assignments</h2>
+            {% if assignments %}
+                {% for assignment in assignments %}
+                    <div class="assignment">
+                        <p>{{ assignment.title }}</p>
+                        <a href="{% url 'take_assignment' assignment_id=assignment.id %}"  class="btn btn-primary">Take Assignment</a>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No assignments available for this course.</p>
+            {% endif %}
+        </div>
+
+        <!-- Grading Results Section -->
+        {% if grading_result %}
+        <div class="grading-section">
+            <h2>Assignment Result</h2>
+            <p>Score: {{ grading_result.score }} / {{ grading_result.total }}</p>
+            <p>Percentage: {{ grading_result.percentage|floatformat:2 }}%</p>
+        </div>
+        {% endif %}
+
+        <!-- Action Buttons -->
         <div class="action-buttons">
-            
-            <a href="{% url 'student_dashboard' %}" class="btn btn-danger" onclick="markComplete(event)">Exit</a>
+            <a href="{% url 'student_dashboard' %}" class="btn btn-danger">Exit</a>
         </div>
     </div>
 
-    <!-- Script to prevent page load -->
+    <!-- Script to prevent page reload -->
     <script>
         function markComplete(event) {
-            event.preventDefault(); // Prevents the page from reloading
-        
-            let url = event.target.href; // Get the href from the clicked button
-            history.pushState(null, null, url); // Update the URL without reloading
-        
-            location.reload(); // Reload only after updating the URL
+            event.preventDefault();
+            let url = event.target.href;
+            fetch(url, { method: 'GET' })
+                .then(() => location.reload());
         }
-        </script>        
+    </script>
 </body>
 </html>

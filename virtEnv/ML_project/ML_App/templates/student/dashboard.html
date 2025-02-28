@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{% static 'css/student_dashboard.css' %}">
     <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
     <script src="{% static 'javascript/student_dashboard.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js" integrity="sha512-L0Shl7nXXzIlBSUUPpxrokqq4ojqgZFQczTYlGjzONGTDAcLremjwaWv5A+EDLnxhQzY5xUZPWLOLqYRkY0Cbw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 
 <body>
@@ -42,7 +43,7 @@
                 <i class="ph ph-chart-line-up"></i>
                 <a href="#" onclick="showContent(event,'performance-container')"> Performance</a>
             </div>
-            
+
         </div>
         <div class="subnav3">
 
@@ -80,8 +81,9 @@
                             </div>
                         </div>
                         <div class="bottom-desc">
-                            <a href="" onclick="showContent(event,'explore-courses-container')" >see details</a>
-                            <a href="" onclick="showContent(event,'explore-courses-container')"><i class="ph ph-arrow-circle-right"></i></a>
+                            <a href="" onclick="showContent(event,'explore-courses-container')">see details</a>
+                            <a href="" onclick="showContent(event,'explore-courses-container')"><i
+                                    class="ph ph-arrow-circle-right"></i></a>
                         </div>
                     </div>
                     <div class="overview-card">
@@ -129,22 +131,22 @@
                 <h2>Enrolled courses</h2>
                 <div class="courses-progress-card">
                     {% if enrolled_courses_with_progress %}
-                        {% for course_data in enrolled_courses_with_progress %}
-                            <div class="card">
-                                <img src="{% static 'images/lerning.webp' %}" alt="" srcset="">
-                                <h3>{{ course_data.course.title }}</h3>
-                                <h3>Instructor: {{ course_data.course.instructor.username }}</h3>
-                                <h3>Description: {{ course_data.course.description }}</h3>
-                                <div class="resume">
-                                    <h3>Progress: {{ course_data.progress_percentage|floatformat:0 }}%</h3>
-                                    <a href="{% url 'course_content' course_data.course.course_id %}">
-                                        <i class="ph ph-play-circle"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        {% endfor %}
+                    {% for course_data in enrolled_courses_with_progress %}
+                    <div class="card">
+                        <img src="{% static 'images/lerning.webp' %}" alt="" srcset="">
+                        <h3>{{ course_data.course.title }}</h3>
+                        <h3>Instructor: {{ course_data.course.instructor.username }}</h3>
+                        <h3>Description: {{ course_data.course.description }}</h3>
+                        <div class="resume">
+                            <h3>Progress: {{ course_data.progress_percentage|floatformat:0 }}%</h3>
+                            <a href="{% url 'course_content' course_data.course.course_id %}">
+                                <i class="ph ph-play-circle"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
                     {% else %}
-                        <h3>You have not enrolled in any course</h3>
+                    <h3>You have not enrolled in any course</h3>
                     {% endif %}
                 </div>
             </div>
@@ -169,57 +171,49 @@
             <p>No available courses to enroll in.</p>
             {% endif %}
         </div>
-        <div class="performance-container" id="performance-container">
-        </div>
         <div class="assignement-container" id="assignement-container">
-            <div class="filter">
-                <a href="#">
-                    <h2>All Assignments</h2>
-                </a>
-                <a href="#">
-                    <h2>By Status</h2>
-                </a>
-                <a href="#">
-                    <h2>By Due Date</h2>
-                </a>
-            </div>
             <div class="assignment-table">
+                {% if assignment_results %}
                 <table class="assignment-table-1">
                     <thead>
                         <tr>
-                            <th>Assignment Overview</th>
-                            <th>Module/Class</th>
-                            <th>Score</th>
-                            <th>Due Date</th>
-                            <th>Days Left</th>
-                            <th>Status</th>
-                            <th>Comment</th>
+                            <th>Course Title</th>
+                            <th>Assignment Title</th>
+                            <th>Questions Scored</th>
+                            <th>Total Questions</th>
+                            <th>Percentage</th>
+                            <th>Grade</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td><a href="{% url 'assignment_result'}">Cyber Security</a></td>
-                            <td>Computer Science</td>
-                            <td>80%</td>
-                            <td>1/4/2025</td>
-                            <td>14</td>
-                            <td>Not started</td>
-                            <td><i class="ph ph-chat-dots"></i></td>
-                        </tr>
-                        <tr>
-                            <td><a href="#">Cyber Security</a></td>
-                            <td>Computer Science</td>
-                            <td>80%</td>
-                            <td>1/4/2025</td>
-                            <td>14</td>
-                            <td>Not started</td>
-                            <td><i class="ph ph-chat-dots"></i></td>
+                            {% for result in assignment_results %}
+                            <td>{{ result.course_title }}</td>
+                            <td>{{ result.assignment_title }}</td>
+                            <td>{{ result.score }}</td>
+                            <td>{{ result.total }}</td>
+                            <td>{{ result.percentage|floatformat:2 }}%</td>
+                            <td>{{ result.grade }}</td>
+                            {% endfor %}
                         </tr>
                     </tbody>
                 </table>
+                {% else %}
+                <p>No assignments completed yet.</p>
+                {% endif %}
             </div>
         </div>
+        <!-- Performance design -->
+        <div class="performance-container" id="performance-container">
+            <h2>Student's Performance Tacking</h2>
+            <div style="width: 300px; height: 300px;">
+                <canvas id="courseProgressChart"></canvas>
+            </div>
+        </div>
+
     </div>
+    
+
 </body>
 
 </html>

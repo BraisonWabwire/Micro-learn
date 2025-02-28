@@ -3,11 +3,14 @@ from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from .models import Instructor, Course, Profile,Enrollment,Progress,Assignment, Question, Choice,StudentAnswer,StudentAssignment
 from .forms import InstructorForm, CourseForm, SignupForm, InstructorLoginForm, AssignmentForm, ChoiceForm,QuestionForm
 from django.views.decorators.cache import never_cache
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.urls import reverse
+import json
 
 
 
@@ -77,30 +80,29 @@ def loginUser(request):
 
     return render(request, 'student/login.html', context)
 
-# Student dahsboard
+
+
+# Student dahsboard i.e also handles assignments
+
+# Existing student_dashboard view (unchanged except context)
 @never_cache
 @login_required(login_url='student_login')
 def student_dashboard(request):
     profile = get_object_or_404(Profile, user=request.user)
-
-    # Ensure the user is a student
     if profile.is_instructor:
         return redirect('student_login')
 
-    # Fetching courses
     courses = Course.objects.all()
     enrolled_courses = Course.objects.filter(enrollments__student=request.user)
     available_courses = courses.exclude(enrollments__student=request.user)
 
-    # Fetch progress for each enrolled course and separate completed courses
     enrolled_courses_with_progress = []
-    completed_courses_with_progress = []  # List for completed courses
+    completed_courses_with_progress = []
 
     for course in enrolled_courses:
         progress = Progress.objects.filter(student=request.user, course=course).first()
         if progress:
             progress_percentage = progress.calculate_progress_percentage()
-            # Check if the course is completed (100% progress)
             if progress_percentage == 100:
                 completed_courses_with_progress.append({
                     'course': course,
@@ -112,24 +114,108 @@ def student_dashboard(request):
                     'progress_percentage': progress_percentage,
                 })
         else:
-            # If no progress exists, assume the course is not started
             enrolled_courses_with_progress.append({
                 'course': course,
                 'progress_percentage': 0,
             })
 
-    
+    student_assignments = StudentAssignment.objects.filter(student=request.user).select_related('assignment__course')
+    assignment_results = []
+    for student_assignment in student_assignments:
+        score, total = calculate_assignment_score(student_assignment)
+        percentage = (score / total * 100) if total > 0 else 0
+        grade = assign_grade(percentage)
+        assignment_results.append({
+            'course_title': student_assignment.assignment.course.title,
+            'assignment_title': student_assignment.assignment.title,
+            'score': score,
+            'total': total,
+            'percentage': percentage,
+            'grade': grade,
+        })
+
     context = {
         'title': 'Student Dashboard',
         'total_courses': courses.count(),
         'available_courses': available_courses,
-        'enrolled_courses_with_progress': enrolled_courses_with_progress,  # Pass enrolled courses (not completed)
-        'completed_courses_with_progress': completed_courses_with_progress,  # Pass completed courses
+        'enrolled_courses_with_progress': enrolled_courses_with_progress,
+        'completed_courses_with_progress': completed_courses_with_progress,
         'enrolled_courses_count': enrolled_courses.count(),
-        'completed_courses_count': len(completed_courses_with_progress),  # Count of completed courses
+        'completed_courses_count': len(completed_courses_with_progress),
+        'assignment_results': assignment_results,
+    }
+    return render(request, 'student/dashboard.html', context)
+
+# New AJAX endpoint for chart data
+@login_required(login_url='student_login')
+def get_chart_data(request):
+    profile = get_object_or_404(Profile, user=request.user)
+    if profile.is_instructor:
+        return JsonResponse({'error': 'Unauthorized'}, status=403)
+
+    # Calculate chart percentages
+    courses = Course.objects.all()
+    total_courses_count = courses.count()
+    enrolled_courses = Course.objects.filter(enrollments__student=request.user)
+    
+    completed_count = 0
+    in_progress_count = 0
+    for course in enrolled_courses:
+        progress = Progress.objects.filter(student=request.user, course=course).first()
+        if progress and progress.calculate_progress_percentage() == 100:
+            completed_count += 1
+        else:
+            in_progress_count += 1
+    
+    not_started_count = total_courses_count - (completed_count + in_progress_count)
+
+    if total_courses_count > 0:
+        completed_percentage = (completed_count / total_courses_count) * 100
+        in_progress_percentage = (in_progress_count / total_courses_count) * 100
+        not_started_percentage = (not_started_count / total_courses_count) * 100
+    else:
+        completed_percentage = 0
+        in_progress_percentage = 0
+        not_started_percentage = 0
+
+    # Prepare chart data
+    chart_data = {
+        'labels': ['Completed Courses', 'In Progress Courses', 'Not Started'],
+        'datasets': [{
+            'data': [completed_percentage, in_progress_percentage, not_started_percentage],
+            'backgroundColor': ['#4CAF50', '#FFC107', '#F44336'],
+            'borderWidth': 1
+        }]
     }
 
-    return render(request, 'student/dashboard.html', context)
+    return JsonResponse(chart_data)
+
+# Culculate assignment score in the student dashboard
+def calculate_assignment_score(student_assignment):
+    answers = student_assignment.answers.all()
+    score = 0
+    total = answers.count()
+    for answer in answers:
+        if answer.selected_choice.is_correct:
+            score += 1
+    return score, total
+
+# Culculate grade in the students dashboard
+def assign_grade(percentage):
+    """Assign a letter grade based on percentage."""
+    if percentage >= 90:
+        return 'A'
+    elif percentage >= 80:
+        return 'B'
+    elif percentage >= 70:
+        return 'C'
+    elif percentage >= 60:
+        return 'D'
+    else:
+        return 'F'
+
+
+
 
 
 
@@ -137,8 +223,6 @@ def student_dashboard(request):
 def logoutUser(request):
     logout(request)
     return redirect('student_login')
-
-
 
 
 
@@ -168,8 +252,10 @@ def logoutAdmin(request):
     return redirect('admin_login')
 
 # View for performing CRUD operations on instructor
+
+# Admin dashboard view
 def admin_dashboard(request):
-    form = InstructorForm()  # Ensure form is always passed
+    form = InstructorForm()  # Form for adding instructors
 
     if request.method == "POST":
         form = InstructorForm(request.POST)
@@ -178,15 +264,39 @@ def admin_dashboard(request):
             messages.success(request, "Instructor added successfully.")
             return redirect('admin_dashboard')
 
-    instructors = Instructor.objects.all()  # Fetch existing instructors
+    # Fetch all instructors
+    instructors = Instructor.objects.all()
+    # Fetch all students (users who are not instructors)
+    students = User.objects.filter(profile__is_instructor=False)
+
+    # Fetch all users
+    all_users = User.objects.all()
+
     context = {
         'title': 'admin-dashboard',
         'form': form,
         'instructors': instructors,
-       
+        'students': students,  # Add students to context
+        'users': all_users,  # Add users to context
     }
     return render(request, 'admin/admin_dashboard.html', context)
 
+# New view to delete a student
+def delete_student(request, user_id):
+    student = get_object_or_404(User, id=user_id)
+    # Ensure the user is a student (not an instructor)
+    if hasattr(student, 'profile') and not student.profile.is_instructor:
+        if request.method == 'POST':
+            student.delete()
+            messages.success(request, f"Student {student.username} deleted successfully!")
+            return redirect('admin_dashboard')
+        return render(request, 'admin/confirm_delete_student.html', {'student': student})
+    else:
+        messages.error(request, "Cannot delete: User is not a student.")
+        return redirect('admin_dashboard')
+    
+
+#Admin creating instructor
 def create_instructor(request):
     if request.method == "POST":
         form = InstructorForm(request.POST)
@@ -397,18 +507,16 @@ def enroll_course(request, course_id):
 @login_required(login_url='student_login')
 def course_content(request, course_id):
     course = get_object_or_404(Course, course_id=course_id)
+    assignments = Assignment.objects.filter(course=course)
     student = request.user
 
-    # Check if the student is enrolled in the course
     enrollment = Enrollment.objects.filter(student=student, course=course).first()
     if not enrollment:
         messages.error(request, 'You are not enrolled in this course.')
         return redirect('student_dashboard')
 
-    # Get or create progress for the student in this course
     progress, created = Progress.objects.get_or_create(student=student, course=course)
 
-    # Update progress based on what the student accesses
     if 'content' in request.GET:
         progress.completed_content = True
     if 'video' in request.GET:
@@ -417,18 +525,25 @@ def course_content(request, course_id):
         progress.completed_material = True
     progress.save()
 
-    # Calculate progress percentage
     progress_percentage = progress.calculate_progress_percentage()
-    assignments = Assignment.objects.filter(course=course)
+
+    # Retrieve grading result from query parameters
+    grading_result = None
+    if 'score' in request.GET and 'total' in request.GET and 'percentage' in request.GET:
+        grading_result = {
+            'score': int(request.GET['score']),
+            'total': int(request.GET['total']),
+            'percentage': float(request.GET['percentage']),
+        }
 
     context = {
         'course': course,
         'progress': progress,
         'progress_percentage': progress_percentage,
-        'assignments':assignments 
+        'assignments': assignments,
+        'grading_result': grading_result,
     }
     return render(request, 'student/course_content.html', context)
-
 
 
 # Displaying the completed courses
@@ -460,6 +575,8 @@ def completed_courses(request):
 
     return render(request, 'student/completed_courses.html', context)
 
+
+
 # Create assignment
 @login_required(login_url='instructor_login')
 def create_assignment(request, course_id):
@@ -472,9 +589,12 @@ def create_assignment(request, course_id):
         assignment_form = AssignmentForm(request.POST)
         if assignment_form.is_valid():
             assignment = assignment_form.save(commit=False)
-            assignment.course = course
+            assignment.course = course  # Associate the assignment with the course
             assignment.save()
+            print(f"Assignment created: {assignment.title} for course: {course.title}")  # Debug statement
             return redirect('create_assignment', course_id=course.course_id)
+        else:
+            print("Form errors:", assignment_form.errors)  # Debug statement
     else:
         assignment_form = AssignmentForm()
 
@@ -533,7 +653,6 @@ def create_assignment(request, course_id):
     return render(request, 'instructor/create_assignment.html', context)
 
 
-
 def delete_assignment(request, assignment_id):
     assignment = get_object_or_404(Assignment, id=assignment_id)
     assignment.delete()
@@ -541,39 +660,59 @@ def delete_assignment(request, assignment_id):
 
 
 
-
-@login_required
+# Take assignment
+@login_required(login_url='student_login')
 def take_assignment(request, assignment_id):
-    # Get the assignment
-    assignment = get_object_or_404(Assignment, assignment_id=assignment_id)
-
-    # Check if the student has already submitted the assignment
+    assignment = get_object_or_404(Assignment, id=assignment_id)
     existing_submission = StudentAssignment.objects.filter(student=request.user, assignment=assignment).first()
-    if existing_submission:
-        return redirect('assignment_result', existing_submission.id)  # ✅ Fix: Correct redirect
 
-    questions = assignment.questions.all()  # Get questions related to the assignment
+    if existing_submission:
+        score, total = calculate_assignment_score(existing_submission)
+        grading_result = {
+            'score': score,
+            'total': total,
+            'percentage': (score / total) * 100 if total > 0 else 0
+        }
+        return redirect(
+            reverse('course_content', kwargs={'course_id': assignment.course.course_id}) + 
+            f"?score={grading_result['score']}&total={grading_result['total']}&percentage={grading_result['percentage']}"
+        )
+
+    questions = assignment.questions.all()
 
     if request.method == "POST":
-        # Create a new StudentAssignment record
         student_assignment = StudentAssignment.objects.create(student=request.user, assignment=assignment)
-
-        # Store student answers
         for question in questions:
             selected_choice_id = request.POST.get(f"question_{question.id}")
             if selected_choice_id:
-                selected_choice = get_object_or_404(Choice, id=selected_choice_id)  # Fix: Use `get_object_or_404`
+                selected_choice = get_object_or_404(Choice, id=selected_choice_id)
                 StudentAnswer.objects.create(
                     student_assignment=student_assignment,
                     question=question,
                     selected_choice=selected_choice
                 )
-
-        return redirect('assignment_result', student_assignment.id)  # Fix: Correct redirect
+        score, total = calculate_assignment_score(student_assignment)
+        grading_result = {
+            'score': score,
+            'total': total,
+            'percentage': (score / total) * 100 if total > 0 else 0
+        }
+        return redirect(
+            reverse('course_content', kwargs={'course_id': assignment.course.course_id}) + 
+            f"?score={grading_result['score']}&total={grading_result['total']}&percentage={grading_result['percentage']}"
+        )
 
     context = {
         'assignment': assignment,
         'questions': questions,
     }
+    return render(request, 'student/take_assignment.html', context)
 
-    return render(request, 'take_assignment.html', context)
+def calculate_assignment_score(student_assignment):
+    answers = student_assignment.answers.all()
+    score = 0
+    total = answers.count()
+    for answer in answers:
+        if answer.selected_choice.is_correct:
+            score += 1
+    return score, total

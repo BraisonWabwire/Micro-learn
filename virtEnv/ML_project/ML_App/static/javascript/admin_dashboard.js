@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function() {
     // Call the function to show the first section when the page loads
-    showContent(event, 'manage-instructors'); // Replace 'manage-instructors' with the ID of your first div
+    showContent(event, 'manage-users'); // Replace 'manage-instructors' with the ID of your first div
 });
 
 function showContent(event, contentId) {

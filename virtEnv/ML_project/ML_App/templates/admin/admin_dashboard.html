@@ -70,43 +70,41 @@
                 <div class="tutorial"><a href="#">Tutorial</a></div>
             </div>
         </div>
+        <!-- Manage all users -->
         <div class="manage-users" id="manage-users">
             <div class="table-container">
                 <h2>Manage all users</h2>
+                {% if users %}
                 <table>
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Name</th>
+                            <th>Username</th>
                             <th>Email</th>
-                            <th>Department</th>
-                            <th>Actions</th>
+                            <th>Date Joined</th>
+                            <th>Is Instructor</th>
                         </tr>
                     </thead>
                     <tbody>
+                        {% for user in users %}
                         <tr>
-                            <td>1</td>
-                            <td>John Doe</td>
-                            <td>john.doe@example.com</td>
-                            <td>Computer Science</td>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.date_joined|date:"Y-m-d H:i" }}</td>
                             <td>
-                                <button class="btn-edit">Edit</button>
-                                <button class="btn-delete">Delete</button>
+                                {% if user.profile.is_instructor %}
+                                    Yes
+                                {% else %}
+                                    No
+                                {% endif %}
                             </td>
                         </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Jane Smith</td>
-                            <td>jane.smith@example.com</td>
-                            <td>Mathematics</td>
-                            <td>
-                                <button class="btn-edit">Edit</button>
-                                <button class="btn-delete">Delete</button>
-                            </td>
-                        </tr>
+                        {% endfor %}
                         <!-- Add more rows as needed -->
                     </tbody>
                 </table>
+                {% else %}
+                <p>No users found.</p>
+                {% endif %}
             </div>
         </div>
         <div class="manage-instructors" id="manage-instructors">
@@ -155,41 +153,33 @@
         <div class="manage-students" id="manage-students">
             <div class="table-container">
                 <h2>Manage Students</h2>
+                {% if students %}
                 <table>
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Name</th>
+                            <th>Username</th>
                             <th>Email</th>
-                            <th>Department</th>
+                            <th>Date Joined</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
+                        {% for student in students %}
                         <tr>
-                            <td>1</td>
-                            <td>John Doe</td>
-                            <td>john.doe@example.com</td>
-                            <td>Computer Science</td>
+                            <td>{{ student.username }}</td>
+                            <td>{{ student.email }}</td>
+                            <td>{{ student.date_joined|date:"Y-m-d H:i" }}</td>
                             <td>
-                                <button class="btn-edit">Edit</button>
-                                <button class="btn-delete">Delete</button>
+                                <a href="{% url 'delete_student' student.id %}">Delete</a>
                             </td>
                         </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Jane Smith</td>
-                            <td>jane.smith@example.com</td>
-                            <td>Mathematics</td>
-                            <td>
-                                <button class="btn-edit">Edit</button>
-                                <button class="btn-delete">Delete</button>
-                            </td>
-                        </tr>
+                        {% endfor %}
                         <!-- Add more rows as needed -->
                     </tbody>
                 </table>
-                <button class="btn-add">Add New Instructor</button>
+                {% else %}
+                <p>No students found.</p>
+                {% endif %}
             </div>
         </div>
     </div>
