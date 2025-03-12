@@ -3,14 +3,13 @@ from django.forms.widgets import PasswordInput
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from .models import Instructor, Course, Profile,Assignment, Question, Choice
-
+import re
 
 class SignupForm(UserCreationForm):
     is_instructor = forms.BooleanField(required=False, label='Are you an instructor?')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Update password1 and password2 fields' widgets for custom placeholders
         self.fields['password1'].widget.attrs.update({'placeholder': 'Password'})
         self.fields['password2'].widget.attrs.update({'placeholder': 'Confirm Password'})
 
@@ -22,8 +21,25 @@ class SignupForm(UserCreationForm):
             'last_name': forms.TextInput(attrs={'placeholder': 'Lastname'}),
             'username': forms.TextInput(attrs={'placeholder': 'Username'}),
             'email': forms.EmailInput(attrs={'placeholder': 'Email'}),
-            # The placeholders for password fields are set in the __init__ method now
         }
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError("This email address is already in use.")
+        return email
+
+    def clean_first_name(self):
+        first_name = self.cleaned_data.get('first_name')
+        if not re.search(r'[a-zA-Z]', first_name):
+            raise forms.ValidationError("First name must contain at least one letter.")
+        return first_name
+
+    def clean_last_name(self):
+        last_name = self.cleaned_data.get('last_name')
+        if not re.search(r'[a-zA-Z]', last_name):
+            raise forms.ValidationError("Last name must contain at least one letter.")
+        return last_name
 
     def save(self, commit=True):
         user = super().save(commit=False)

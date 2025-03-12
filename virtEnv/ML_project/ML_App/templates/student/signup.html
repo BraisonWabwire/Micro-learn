@@ -1,50 +1,79 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{title}}</title>
     <link rel="stylesheet" href="{% static 'css/signup.css' %}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 
 <body>
     <div class="container">
         <div class="inner-container1">
-            <img src="{% static 'images/1106.jpg' %}" alt="" srcset="" class="inner-container1">
-            <div class="home"><a href="{% url 'homepage' %}">Back to homepage</a> <i class="ph ph-arrow-right"></i>
+            <div class="overlay"></div>
+            <img src="{% static 'images/1106.jpg' %}" alt="Background">
+            <div class="home"><a href="{% url 'homepage' %}">Back to Home</a> 
+                <span class="material-icons">arrow_forward</span>
             </div>
-            <h2>The fountain of achievements</h2>
+            <h2>The Fountain of Achievements</h2>
         </div>
         <div class="inner-container2">
             <form action="" method="POST">
                 {% csrf_token %}
-                <h1>Create an account</h1>
-                <p>Already have an account? <a href="{% url 'student_login' %}">Login</a>
-                <p>
+                <h1>Create Account</h1>
+                <p class="subtitle">Join us today! Already registered? <a href="{% url 'student_login' %}">Sign In</a></p>
+                
                 <div class="names">
-                    {{ form.first_name }}
-                    {{ form.last_name }}
-                </div>
-                {{ form.username }}
-                {{ form.email }}
-                {{ form.password1 }}
-                {{ form.password2 }}
-                <label>
-                    <P> <input type="checkbox" id="togglePassword"> show password </P>
-                </label>
-                <button type="submit">Create account</button>
-                <!-- Display Django Messages -->
-                {% if messages %}
-                <div class="messages">
-                    {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} fade show" role="alert">
-                        {{ message }}
+                    <div class="field-wrapper">
+                        {{ form.first_name }}
+                        {% for error in form.first_name.errors %}
+                            <span class="error-message">{{ error }}</span>
+                        {% endfor %}
                     </div>
+                    <div class="field-wrapper">
+                        {{ form.last_name }}
+                        {% for error in form.last_name.errors %}
+                            <span class="error-message">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="field-wrapper">
+                    {{ form.username }}
+                    {% for error in form.username.errors %}
+                        <span class="error-message">{{ error }}</span>
                     {% endfor %}
                 </div>
-                {% endif %}
+                
+                <div class="field-wrapper">
+                    {{ form.email }}
+                    {% for error in form.email.errors %}
+                        <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                
+                <div class="field-wrapper">
+                    {{ form.password1 }}
+                    {% for error in form.password1.errors %}
+                        <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                
+                <div class="field-wrapper">
+                    {{ form.password2 }}
+                    {% for error in form.password2.errors %}
+                        <span class="error-message">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <label class="checkbox-container">
+                    <input type="checkbox" id="togglePassword">
+                    <span>Show Password</span>
+                </label>
+                
+                <button type="submit">Get Started</button>
             </form>
         </div>
     </div>
@@ -56,17 +85,5 @@
             });
         });
     </script>
-
-    <script>
-        setTimeout(function () {
-            let alerts = document.querySelectorAll(".alert");
-            alerts.forEach(alert => {
-                alert.classList.add("fade-out");
-                setTimeout(() => alert.style.display = "none", 500);
-            });
-        }, 3000);
-    </script>
-
-    <body>
-
+</body>
 </html>

@@ -8,6 +8,7 @@
     <title>Create Assignment - {{ course.title }}</title>
     <!-- Custom Styles -->
     <link rel="stylesheet" href="{% static 'css/create_assignment.css' %}">
+    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
 </head>
 
 <body>
@@ -17,14 +18,16 @@
 
         <!-- Assignment Form -->
         <div class="form-container">
-            <h2><a href="{% url 'instructor_dashboard' %}">Back to student dashboard</a></h2>
+            <h2><a href="{% url 'instructor_dashboard' %}"> <i class="ph ph-arrow-circle-left"></i> Back to instructor dashboard</a></h2>
             <h2>Create Assignment</h2>
+            {% if assignments.count < 3 %}
             <form method="post">
                 {% csrf_token %}
                 <input type="hidden" name="assignment_form" value="true">
                 <div class="form-group">{{ assignment_form.as_p }}</div>
-                <button type="submit" class="btn btn-primary">Create Assignment</button>
+                <button type="submit" class="btn btn-primary">Add Assignment {{ assignments.count|add:1 }}</button>
             </form>
+            {% endif %}
         </div>
 
         <!-- Question Form (If Assignment Exists) -->
@@ -77,6 +80,20 @@
             {% endfor %}
         </div>
     </div>
+    <!-- script to prevent page from scrolling to the top when page relods -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Restore scroll position after reload
+            if (sessionStorage.getItem("scrollPosition") !== null) {
+                window.scrollTo(0, sessionStorage.getItem("scrollPosition"));
+            }
+    
+            // Save scroll position before unloading the page
+            window.addEventListener("beforeunload", function () {
+                sessionStorage.setItem("scrollPosition", window.scrollY);
+            });
+        });
+    </script>
 
 </body>
 

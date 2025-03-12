@@ -30,6 +30,10 @@ urlpatterns = [
     # Get chart data
     path('get_chart_data/', views.get_chart_data, name='get_chart_data'),
     path('admin/student/delete/<int:user_id>/', views.delete_student, name='delete_student'),
+
+    # Other urls
+    path('privacy-policy/', views.privacy_policy, name='privacy_policy'),
+
 ]   
 
 # For handling video display

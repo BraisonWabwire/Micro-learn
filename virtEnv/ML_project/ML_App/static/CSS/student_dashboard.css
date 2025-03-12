@@ -374,9 +374,9 @@ body {
     gap: 15px;
 }
 
-.enrolled-courses .card {
+/* .enrolled-courses .card {
     border: 1px solid black;
-}
+} */
 
 .courses-in-progress {
     width: 100%;
@@ -411,7 +411,7 @@ body {
 
 .courses-progress-card .card {
     width: 330px;
-    height: 250px;
+    height: 280px;
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
@@ -579,4 +579,42 @@ body {
 }
 .assignement-container .assignment-table .assignment-table-1 td{
     font-size: 14px;
+}
+
+
+
+.messages {
+    position: absolute;
+    top: 55px; /* Adjust based on icon size */
+    left: 87%;
+    transform: translateX(-50%);
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    display: none;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.messages p {
+    margin: 0;
+}
+
+/* Triangle (Arrow) pointing to the icon */
+.messages::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent #f8d7da transparent;
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }

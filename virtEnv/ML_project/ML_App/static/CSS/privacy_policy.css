@@ -1,0 +1,146 @@
+/* Privacy Policy Styles */
+.privacy-policy {
+    max-width: 900px;
+    margin: 120px auto 60px; /* Space for fixed header */
+    background-color: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+/* Header Banner */
+.policy-header {
+    position: relative;
+    background: linear-gradient(135deg, #0D1B2A 0%, #cd88db 100%);
+    padding: 60px 20px;
+    text-align: center;
+    color: white;
+}
+
+.header-overlay {
+    position: relative;
+    z-index: 1;
+}
+
+.policy-header h1 {
+    font-size: 42px;
+    font-weight: 800;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.policy-header p {
+    font-size: 18px;
+    font-weight: 300;
+    margin-bottom: 5px;
+}
+
+.policy-header .last-updated {
+    font-size: 14px;
+    opacity: 0.8;
+    margin-top: 15px;
+}
+
+/* Main Content */
+.policy-content {
+    padding: 40px;
+}
+
+.intro-section {
+    background-color: #f9f9f9;
+    padding: 30px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+}
+
+.policy-section {
+    margin-bottom: 35px;
+}
+
+.policy-section h2 {
+    font-size: 26px;
+    color: #0D1B2A;
+    margin-bottom: 15px;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.policy-section h2::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 50px;
+    height: 3px;
+    background-color: #cd88db;
+}
+
+.policy-section p {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.8;
+    margin-bottom: 15px;
+}
+
+.policy-section ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.policy-section ul li {
+    font-size: 16px;
+    color: #555;
+    line-height: 1.8;
+    margin-bottom: 12px;
+    position: relative;
+    padding-left: 25px;
+}
+
+.policy-section ul li::before {
+    content: '\f058'; /* Font Awesome circle-check icon */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    color: #cd88db;
+    position: absolute;
+    left: 0;
+    top: 2px;
+}
+
+.highlight {
+    font-weight: 600;
+    color: #0D1B2A;
+}
+
+.policy-link {
+    color: #cd88db;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.policy-link:hover {
+    color: #b76ecc;
+    text-decoration: underline;
+}
+
+/* Contact Section */
+.contact-section p {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.contact-section i {
+    color: #cd88db;
+    font-size: 18px;
+}
+
+/* Hover Effects */
+.policy-section {
+    transition: transform 0.3s ease;
+}
+
+.policy-section:hover {
+    transform: translateY(-5px);
+}

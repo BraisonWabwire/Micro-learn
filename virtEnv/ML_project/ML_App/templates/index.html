@@ -1,52 +1,172 @@
 {% extends 'base.html' %}
 {% block content %}
 <!-- header -->
- {% load static %}
+{% load static %}
 <div class="header">
     <div class="logo">
-        <img src="{% static 'images/logo 2.png'%}" alt="" srcset="" style="width: 200px; height: auto;">
+        <img src="{% static 'images/logo 2.png'%}" alt="EduLearn Logo" class="logo-img">
+    </div>
+    <div class="nav-toggle">
+        <i class="fa-solid fa-bars"></i>
     </div>
     <div class="links">
         <ul>
             <div class="student">
                 <li><a href="#">Account</a><i class="fa-solid fa-angle-down"></i></li>
                 <div class="student_dropdown">
-                    <a href="{% url 'signup' %}">student signup</a>
-                    <a href="{% url 'student_login' %}">student login</a>
-                    <a href="{% url 'instructor_login' %}">Instructor login</a>
+                    <a href="{% url 'signup' %}">Student Signup</a>
+                    <a href="{% url 'student_login' %}">Student Login</a>
+                    <a href="{% url 'instructor_login' %}">Instructor Login</a>
                 </div>
             </div>
-            <!-- <div class="instructor">
-                <li><a href="">Instructors</a><i class="fa-solid fa-angle-down"></i></li>
-                <div class="student_dropdown">
-                    <a href="">signup</a>
-                    <a href="">login</a>
-                </div>
-            </div> -->
-            <li><a href="">Contact</a></li>
-            <li><a href="">Private policy</a></li>
-            <li><a href="">FAQ</a></li>
-            <li><a href="">About</a></li>
+            <li><a href="#">Contact</a></li>
+            <li><a href="{% url 'privacy_policy' %}">Privacy Policy</a></li>
+            <li><a href="#">FAQ</a></li>
+            <li><a href="#">About</a></li>
         </ul>
     </div>
- </div>
- <!-- middle-section -->
-  <div class="middle-section">
+</div>
+
+<!-- hero section -->
+<div class="hero-section">
     <div class="right">
-        <h2>Welcome to EduLearn-your gateway to knowledge</h2>
-        <h3>"Explore, engage, and elevate your skills today!"</h3>
-        <div class="button"><a href="{% url 'signup' %}"><button> Register</button></a> <a href="{% url 'student_login' %}"><button>Login as student</button></a></div>
+        <h1>Welcome to EduLearn</h1>
+        <h2>Your Gateway to Knowledge</h2>
+        <p>"Explore, engage, and elevate your skills today!"</p>
+        <div class="button">
+            <a href="{% url 'signup' %}"><button class="primary-btn">Get Started</button></a>
+            <a href="{% url 'student_login' %}"><button class="secondary-btn">Student Login</button></a>
+            <a href="{% url 'instructor_login' %}"><button class="secondary-btn">Instructor Login</button></a>
+        </div>
     </div>
     <div class="left">
-        <img src=" {% static 'images/course.png'%}" alt="" srcset="" style="width: 400px; height: 416px;">
+        <img src="{% static 'images/course.png'%}" alt="Learning illustration" class="hero-img">
+    </div>
+</div>
+
+<!-- features section -->
+<div class="features-section">
+    <h2>Why Choose EduLearn?</h2>
+    <div class="features-grid">
+        <div class="feature-card">
+            <i class="fa-solid fa-book"></i>
+            <h3>Expert-Led Courses</h3>
+            <p>Learn from industry professionals</p>
+        </div>
+        <div class="feature-card">
+            <i class="fa-solid fa-clock"></i>
+            <h3>Flexible Learning</h3>
+            <p>Study at your own pace</p>
+        </div>
+        <div class="feature-card">
+            <i class="fa-solid fa-certificate"></i>
+            <h3>Certification</h3>
+            <p>Earn recognized credentials</p>
         </div>
     </div>
-  </div> 
-     <!-- middle lower section  -->
-      <div class="middle_lower_section">
-        <h2>Available courses</h2>
-        <div class="card-section">
-            
+</div>
+
+<!-- Enhanced courses section -->
+<div class="courses-section">
+    <h2>Explore Our Premium Courses</h2>
+    <div class="courses-grid">
+        <div class="course-card">
+            <div class="course-image">
+                <img src="{% static 'images/1106.jpg'%}" alt="Cybersecurity Course">
+                <span class="course-tag">Popular</span>
+            </div>
+            <div class="course-content">
+                <h3>Cybersecurity Fundamentals</h3>
+                <p>Master the basics of protecting digital assets</p>
+                <div class="course-meta">
+                    <span><i class="fa-solid fa-clock"></i> 4 weeks</span>
+                    <span><i class="fa-solid fa-user"></i> Beginner</span>
+                </div>
+                <button class="enroll-btn">Enroll Now</button>
+            </div>
         </div>
-      </div>
-{%endblock content %}
+        <div class="course-card">
+            <div class="course-image">
+                <img src="{% static 'images/1106.jpg'%}" alt="Web Development Course">
+                <span class="course-tag">New</span>
+            </div>
+            <div class="course-content">
+                <h3>Web Development Bootcamp</h3>
+                <p>Build modern websites from scratch</p>
+                <div class="course-meta">
+                    <span><i class="fa-solid fa-clock"></i> 6 weeks</span>
+                    <span><i class="fa-solid fa-user"></i> Intermediate</span>
+                </div>
+                <button class="enroll-btn">Enroll Now</button>
+            </div>
+        </div>
+        <div class="course-card">
+            <div class="course-image">
+                <img src="{% static 'images/1106.jpg'%}" alt="Data Science Course">
+            </div>
+            <div class="course-content">
+                <h3>Data Science Essentials</h3>
+                <p>Learn data analysis and visualization</p>
+                <div class="course-meta">
+                    <span><i class="fa-solid fa-clock"></i> 5 weeks</span>
+                    <span><i class="fa-solid fa-user"></i> Beginner</span>
+                </div>
+                <button class="enroll-btn">Enroll Now</button>
+            </div>
+        </div>
+    </div>
+    <div class="view-more">
+        <a href="#" class="view-more-link">View All Courses <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+</div>
+
+<!-- testimonials section -->
+<div class="testimonials-section">
+    <h2>What Our Students Say</h2>
+    <div class="testimonials-grid">
+        <div class="testimonial-card">
+            <p>"EduLearn transformed my career with practical skills!"</p>
+            <div class="student-info">
+                <img src="{% static 'images/student1.jpg'%}" alt="Student">
+                <span>Braison Wabwire, Web Developer</span>
+            </div>
+        </div>
+        <div class="testimonial-card">
+            <p>"The courses are engaging and well-structured."</p>
+            <div class="student-info">
+                <img src="{% static 'images/student1.jpg'%}" alt="Student">
+                <span>Calvin Mulianga, Data Analyst</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- footer -->
+<footer class="footer">
+    <div class="footer-content">
+        <div class="footer-section">
+            <p>Empowering education since 2025</p>
+        </div>
+        <div class="footer-section">
+            <h3>Quick Links</h3>
+            <ul>
+                <li><a href="#">About Us</a></li>
+                <li><a href="#">Contact</a></li>
+                <li><a href="{% url 'privacy_policy' %}">Privacy Policy</a></li>
+                <li><a href="#">FAQ</a></li>
+            </ul>
+        </div>
+        <div class="footer-section">
+            <h3>Connect With Us</h3>
+            <div class="social-links">
+                <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                <a href="#"><i class="fa-brands fa-facebook"></i></a>
+                <a href="#"><i class="fa-brands fa-linkedin"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>© 2025 EduLearn. All rights reserved.</p>
+    </div>
+</footer>
+{% endblock content %}

@@ -11,6 +11,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
 import json
+from django.contrib.messages import get_messages
 
 
 
@@ -21,41 +22,57 @@ import json
 
 def home(request):
     context = {
-        'title': 'homepage',
+        'title': 'landing',
     }
     return render(request, 'index.html', context)
 
+
 def signup(request):
-    # Check if user is authenticated
     if request.user.is_authenticated:
         return redirect('student_dashboard')
-    else:
-        # Perform the signup
-        form = SignupForm()
-        if request.method == "POST":
-            form = SignupForm(request.POST)
-            if form.is_valid():
-                user = form.save()
-                messages.success(request, f"Account for {user.username} created successfully")
-                return redirect('student_login')
-            else:    
-                messages.error(request, f"Please check your credentials")
+    
+    form = SignupForm()
+    if request.method == "POST":
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            messages.success(request, f"Account for {user.username} created successfully")
+            return redirect('student_login')
+        else:
+            # Add specific field errors as messages
+            for field, errors in form.errors.items():
+                for error in errors:
+                    if field == 'email':
+                        messages.error(request, f"Email error: {error}")
+                    elif field == 'first_name':
+                        messages.error(request, f"First name error: {error}")
+                    elif field == 'last_name':
+                        messages.error(request, f"Last name error: {error}")
+                    elif field == 'username':
+                        messages.error(request, f"Username error: {error}")
+                    elif field == 'password1':
+                        messages.error(request, f"Password error: {error}")
+                    elif field == 'password2':
+                        messages.error(request, f"Password confirmation error: {error}")
+                    else:
+                        messages.error(request, error)
 
-        context = {
-            'title': 'student-signup',
-            'form': form
-        }
+    context = {
+        'title': 'student-signup',
+        'form': form
+    }
     return render(request, 'student/signup.html', context)
 
 def loginUser(request):
+
+    storage = get_messages(request) 
+    context = {
+        'title': 'student_login'
+        }
     # Check if user is already authenticated
     if request.user.is_authenticated:
         return redirect('student_dashboard')
     
-    context = {
-        'title': 'student_login'
-    }
-
     if request.method == "POST":
         # Get username and password from the form
         username = request.POST.get('username')
@@ -77,6 +94,8 @@ def loginUser(request):
         else:
             # If authentication fails, show an error message
             messages.error(request, 'Incorrect username or password.')
+        
+
 
     return render(request, 'student/login.html', context)
 
@@ -500,23 +519,30 @@ def enroll_course(request, course_id):
         # Enroll the student in the course
         Enrollment.objects.create(student=request.user, course=course)
         messages.success(request, f'Successfully enrolled in {course.title}.')
-        return redirect('student_dashboard')
+
+    return redirect('student_dashboard')
 
 
 # Course content
 @login_required(login_url='student_login')
 def course_content(request, course_id):
     course = get_object_or_404(Course, course_id=course_id)
-    assignments = Assignment.objects.filter(course=course)
     student = request.user
-
     enrollment = Enrollment.objects.filter(student=student, course=course).first()
     if not enrollment:
         messages.error(request, 'You are not enrolled in this course.')
         return redirect('student_dashboard')
 
-    progress, created = Progress.objects.get_or_create(student=student, course=course)
+    # Check prior enrolled courses
+    enrolled_courses = Enrollment.objects.filter(student=student).order_by('enrolled_at')
+    current_course_index = list(enrolled_courses).index(enrollment)
+    for prior_enrollment in enrolled_courses[:current_course_index]:
+        if not is_course_complete(student, prior_enrollment.course):
+            messages.error(request, f'You must complete "{prior_enrollment.course.title}" first.')
+            return redirect('student_dashboard')
 
+    assignments = Assignment.objects.filter(course=course)
+    progress, created = Progress.objects.get_or_create(student=student, course=course)
     if 'content' in request.GET:
         progress.completed_content = True
     if 'video' in request.GET:
@@ -526,8 +552,6 @@ def course_content(request, course_id):
     progress.save()
 
     progress_percentage = progress.calculate_progress_percentage()
-
-    # Retrieve grading result from query parameters
     grading_result = None
     if 'score' in request.GET and 'total' in request.GET and 'percentage' in request.GET:
         grading_result = {
@@ -544,7 +568,6 @@ def course_content(request, course_id):
         'grading_result': grading_result,
     }
     return render(request, 'student/course_content.html', context)
-
 
 # Displaying the completed courses
 @never_cache
@@ -575,48 +598,72 @@ def completed_courses(request):
 
     return render(request, 'student/completed_courses.html', context)
 
+# views.py (at the top)
+def is_course_complete(student, course):
+    # Check progress (100%)
+    progress = Progress.objects.filter(student=student, course=course).first()
+    if not progress or progress.calculate_progress_percentage() != 100:
+        return False
+    
+    # Check all assignments passed (≥ 7/10)
+    assignments = Assignment.objects.filter(course=course)
+    student_assignments = StudentAssignment.objects.filter(student=student, assignment__course=course)
+    if assignments.count() != student_assignments.count():  # All must be attempted
+        return False
+    return all(sa.completed and sa.score >= 7 for sa in student_assignments)
 
 
-# Create assignment
 @login_required(login_url='instructor_login')
 def create_assignment(request, course_id):
-    course = get_object_or_404(Course, course_id=course_id)
+    # Ensure the course exists and belongs to the requesting instructor
+    course = get_object_or_404(Course, course_id=course_id, instructor=request.user)
     assignment = None
     question = None
+    error_message = None
+
+    # Check current number of assignments
+    assignments = Assignment.objects.filter(course=course)
+    current_assignment_count = assignments.count()
+    if current_assignment_count >= 3:
+        error_message = "This course already has the maximum of 3 assignments."
+    elif request.user != course.instructor:
+        error_message = "You can only add assignments to your own courses."
 
     # Handle Assignment Form Submission
-    if 'assignment_form' in request.POST:
+    if 'assignment_form' in request.POST and not error_message:
         assignment_form = AssignmentForm(request.POST)
         if assignment_form.is_valid():
             assignment = assignment_form.save(commit=False)
-            assignment.course = course  # Associate the assignment with the course
+            assignment.course = course
+            assignment.order = current_assignment_count + 1  # Set order (1, 2, or 3)
+            assignment.max_score = 10  # Fixed as per model, but explicitly set here
             assignment.save()
-            print(f"Assignment created: {assignment.title} for course: {course.title}")  # Debug statement
+            print(f"Assignment created: {assignment.title} (Order {assignment.order}) for course: {course.title}")
             return redirect('create_assignment', course_id=course.course_id)
         else:
-            print("Form errors:", assignment_form.errors)  # Debug statement
+            print("Form errors:", assignment_form.errors)
     else:
         assignment_form = AssignmentForm()
 
-    # Get the latest assignment for this course (if available)
-    assignments = Assignment.objects.filter(course=course)
+    # Get the latest assignment for display (if any)
     if assignments.exists():
         assignment = assignments.latest('created_at')
 
     # Handle Question Form Submission
     if 'question_form' in request.POST:
         assignment_id = request.POST.get('assignment_id')
-        assignment = get_object_or_404(Assignment, id=assignment_id)
+        assignment = get_object_or_404(Assignment, id=assignment_id, course=course)
         question_form = QuestionForm(request.POST)
         if question_form.is_valid():
             question = question_form.save(commit=False)
             question.assignment = assignment
             question.save()
+            print(f"Question added to Assignment {assignment.order}: {question.text}")
             return redirect('create_assignment', course_id=course.course_id)
     else:
         question_form = QuestionForm()
 
-    # Get the latest question for this assignment (if available)
+    # Get the latest question for display (if any)
     if assignment:
         questions = Question.objects.filter(assignment=assignment)
         if questions.exists():
@@ -625,17 +672,18 @@ def create_assignment(request, course_id):
     # Handle Choice Form Submission
     if 'choice_form' in request.POST:
         question_id = request.POST.get('question_id')
-        question = get_object_or_404(Question, id=question_id)
+        question = get_object_or_404(Question, id=question_id, assignment__course=course)
         choice_form = ChoiceForm(request.POST)
         if choice_form.is_valid():
             choice = choice_form.save(commit=False)
             choice.question = question
             choice.save()
+            print(f"Choice added to Question: {choice.text} (Correct: {choice.is_correct})")
             return redirect('create_assignment', course_id=course.course_id)
     else:
         choice_form = ChoiceForm()
 
-    # Fetch all related data
+    # Fetch all related data for display
     questions = Question.objects.filter(assignment__course=course)
     choices = Choice.objects.filter(question__assignment__course=course)
 
@@ -649,58 +697,76 @@ def create_assignment(request, course_id):
         'choices': choices,
         'assignment': assignment,
         'question': question,
+        'error_message': error_message,
     }
     return render(request, 'instructor/create_assignment.html', context)
-
 
 def delete_assignment(request, assignment_id):
     assignment = get_object_or_404(Assignment, id=assignment_id)
     assignment.delete()
     return redirect('instructor_dashboard') 
 
-
-
-# Take assignment
 @login_required(login_url='student_login')
 def take_assignment(request, assignment_id):
     assignment = get_object_or_404(Assignment, id=assignment_id)
-    existing_submission = StudentAssignment.objects.filter(student=request.user, assignment=assignment).first()
+    student = request.user
+    course = assignment.course
 
-    if existing_submission:
-        score, total = calculate_assignment_score(existing_submission)
-        grading_result = {
-            'score': score,
-            'total': total,
-            'percentage': (score / total) * 100 if total > 0 else 0
-        }
-        return redirect(
-            reverse('course_content', kwargs={'course_id': assignment.course.course_id}) + 
-            f"?score={grading_result['score']}&total={grading_result['total']}&percentage={grading_result['percentage']}"
-        )
+    # Check enrollment
+    enrollment = Enrollment.objects.filter(student=student, course=course).first()
+    if not enrollment:
+        return render(request, 'student/take_assignment.html', {
+            'assignment': assignment,
+            'error': 'You are not enrolled in this course.',
+        })
+
+    # Check prior enrolled courses
+    enrolled_courses = Enrollment.objects.filter(student=student).order_by('enrolled_at')
+    current_course_index = list(enrolled_courses).index(enrollment)
+    for prior_enrollment in enrolled_courses[:current_course_index]:
+        if not is_course_complete(student, prior_enrollment.course):
+            return render(request, 'student/take_assignment.html', {
+                'assignment': assignment,
+                'error': f'You must complete "{prior_enrollment.course.title}" first.',
+            })
+
+    # Existing prerequisite check for assignments within the course
+    if assignment.order > 1:
+        prev_assignment = Assignment.objects.filter(course=course, order=assignment.order - 1).first()
+        if prev_assignment:
+            prev_submission = StudentAssignment.objects.filter(student=student, assignment=prev_assignment).first()
+            if not prev_submission or prev_submission.score < 7:
+                return render(request, 'student/take_assignment.html', {
+                    'assignment': assignment,
+                    'error': f'You must score at least 7/10 on Assignment {prev_assignment.order} first.',
+                })
+
+    # Check if already completed
+    existing_submission = StudentAssignment.objects.filter(student=student, assignment=assignment).first()
+    if existing_submission and existing_submission.completed:
+        return redirect(reverse('course_content', kwargs={'course_id': course.course_id}))
 
     questions = assignment.questions.all()
+    if not questions.exists():
+        return render(request, 'student/take_assignment.html', {
+            'assignment': assignment,
+            'error': 'This assignment has no questions yet.',
+        })
 
     if request.method == "POST":
-        student_assignment = StudentAssignment.objects.create(student=request.user, assignment=assignment)
+        student_assignment = StudentAssignment.objects.create(student=student, assignment=assignment)
         for question in questions:
             selected_choice_id = request.POST.get(f"question_{question.id}")
             if selected_choice_id:
-                selected_choice = get_object_or_404(Choice, id=selected_choice_id)
+                selected_choice = get_object_or_404(Choice, id=selected_choice_id, question=question)
                 StudentAnswer.objects.create(
                     student_assignment=student_assignment,
                     question=question,
                     selected_choice=selected_choice
                 )
-        score, total = calculate_assignment_score(student_assignment)
-        grading_result = {
-            'score': score,
-            'total': total,
-            'percentage': (score / total) * 100 if total > 0 else 0
-        }
-        return redirect(
-            reverse('course_content', kwargs={'course_id': assignment.course.course_id}) + 
-            f"?score={grading_result['score']}&total={grading_result['total']}&percentage={grading_result['percentage']}"
-        )
+        student_assignment.completed = True
+        student_assignment.save()
+        return redirect(reverse('course_content', kwargs={'course_id': course.course_id}))
 
     context = {
         'assignment': assignment,
@@ -708,11 +774,24 @@ def take_assignment(request, assignment_id):
     }
     return render(request, 'student/take_assignment.html', context)
 
+
 def calculate_assignment_score(student_assignment):
+    """
+    Calculate the score for a student assignment, normalized to 10.
+    This is now primarily handled in the StudentAssignment model's save method,
+    but kept here for reference or external use.
+    """
     answers = student_assignment.answers.all()
-    score = 0
-    total = answers.count()
-    for answer in answers:
-        if answer.selected_choice.is_correct:
-            score += 1
-    return score, total
+    if not answers.exists():
+        return 0, 10
+    points_per_question = student_assignment.assignment.max_score / answers.count()  # 10 / number of questions
+    correct_answers = sum(1 for answer in answers if answer.selected_choice.is_correct)
+    score = round(correct_answers * points_per_question, 1)
+    return score, student_assignment.assignment.max_score  # Always returns total as 10
+
+
+
+
+# Other pages
+def privacy_policy(request):
+    return render(request, 'privacy_policy.html')

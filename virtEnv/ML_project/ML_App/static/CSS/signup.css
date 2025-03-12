@@ -1,271 +1,266 @@
-@import url('https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 
 * {
     box-sizing: border-box;
     margin: 0;
+    padding: 0;
 }
 
 body {
-    background-color: #1B263B;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 50px;
-
+    padding: 20px;
+    font-family: 'Poppins', sans-serif;
 }
 
 .container {
-    width: 1025px;
-    height: 525px;
-    background-color: #0D1B2A;
-    border-radius: 10px;
+    width: 100%;
+    max-width: 1000px;
+    height: 600px; /* Fixed height */
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-
-
+    flex-wrap: wrap;
+    overflow: hidden; /* No scrolling on container */
 }
 
 .inner-container1 {
-    width: 500px;
-    height: 500px;
-    background-color: #0D1B2A;
-    border-radius: 10px;
-    background-repeat: no-repeat;
-    background-size: cover;
+    width: 50%;
     position: relative;
+    overflow: hidden;
+    height: 100%; /* Match container height */
 }
 
 .inner-container1 img {
     width: 100%;
     height: 100%;
-    display: block;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.inner-container1:hover img {
+    transform: scale(1.05);
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.6));
 }
 
 .inner-container1 h2 {
-    color: white;
-    text-align: center;
-    padding-top: 430px;
-    font-size: 12pt;
-    font-family: "Nunito Sans", serif;
-    font-weight: 400;
-    text-transform: capitalize;
     position: absolute;
-    z-index: 2;
-    bottom: 10px;
-    left: 150px;
-}
-
-.inner-container2 {
-    width: 500px;
-    height: 525px;
-    background-color: #0D1B2A;
-    border-top-right-radius: 10px;
-    border-bottom-right-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.inner-container2 form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    width: auto;
-}
-
-.inner-container2 form h1 {
-    font-size: 36px;
-    font-weight: 500;
+    bottom: 30px;
+    left: 30px;
     color: white;
-    text-align: left;
-    font-family: "Nunito Sans", serif;
-}
-
-.inner-container2 form h2 {
-    font-size: 12pt;
-    color: white;
-    text-align: left;
-}
-
-.inner-container2 form a {
-    text-decoration: none;
-    margin-left: 5px;
-    color: #0082d6;
-    text-decoration: underline;
-    letter-spacing: 0.4px;
-}
-
-
-.inner-container2 form .names {
-    display: flex;
-    gap: 1rem;
-}
-
-.inner-container2 form .names input {
-    width: 188px;
-}
-
-.inner-container2 form input {
-    height: 40px;
-    background-color: #1B263B;
-    border: none;
-    border-radius: 5px;
-    padding-left: 10px;
-    color: white;
-    outline: none;
-    font-size: 12px;
-}
-
-.inner-container2 form input:focus {
-    border: 1.5px solid #7ac4ff;
-}
-
-.inner-container2 form P {
-    color: white;
-    display: flex;
-    align-items: center;
     font-size: 14px;
-    letter-spacing: 0.4px;
-    font-family: "Lato", serif;
+    font-weight: 500;
+    text-transform: capitalize;
+    z-index: 2;
+    font-family: "Inter", serif;
+    padding-left: 100px;
 }
 
-input[type="checkbox"] {
-    margin-right: 10px;
-    transform: scale(1.2);
-}
-
-.inner-container2 form button {
-    height: 40px;
-    border-radius: 5px;
-    background-color: #0082d6;
-    border: none;
-    color: white;
-    font-weight: 200;
-    cursor: pointer;
-}
-
-.inner-container2 form button:hover {
-    background-color: #7ac4ff;
-    transition: 0.5s ease-in-out;
-}
-
-.container .inner-container1 .home {
-    width: 140px;
-    height: 25px;
-    background-color: #0082d6;
-    border: none;
+.home {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: #ffffff;
+    padding: 8px 16px;
     border-radius: 20px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 0.4rem;
-    margin-left: 350px;
-    margin-top: 10px;
-    font-family: "Nunito Sans", serif;
-    position: absolute;
-    z-index: 2;
-    top: 10px;
+    gap: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
 }
 
-.container .inner-container1 .home a {
+.home a {
+    color: #2c3e50;
     text-decoration: none;
-    color: white;
-    font-size: 12px;
-    font-weight: 300;
+    font-size: 14px;
+    font-weight: 500;
 }
 
-.container .inner-container1 .home i {
-    color: white;
-    font-size: 12px;
-
+.home span {
+    color: #3498db;
+    font-size: 18px;
 }
 
-.container .inner-container1 .home:hover {
-    background-color: #7ac4ff;
-    transition: 0.5s ease-in-out;
+.home:hover {
+    background: #3498db;
+    transform: translateY(-2px);
 }
 
-.message {
-    /* width: 100%; */
-    height: 6vh;
-    background-color: rgb(212, 115, 115);
+.home:hover a { color: white; }
+.home:hover span { color: white; }
+
+.inner-container2 {
+    width: 50%;
+    padding: 20px; /* Reduced padding */
+    background: white;
+    height: 100%; /* Match container height */
+    overflow: hidden; /* No scrolling here either */
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
-    margin-top: 20px;
-
 }
 
-/* message hidden property */
-.hidden {
-    opacity: 0;
-    visibility: hidden;
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* Further reduced gap */
+    flex-grow: 1;
+    justify-content: space-between; /* Distribute space */
+    height: 100%; /* Ensure form fits container */
 }
 
-/* Messages Styling */
-.messages {
-    margin-bottom: 15px;
+form h1 {
+    font-size: 24px; /* Reduced font size */
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 2px; /* Reduced margin */
 }
 
-/* Alert Box Styling */
-.alert {
-    padding: 12px;
-    border-radius: 5px;
-    font-size: 14px;
-    text-align: center;
-    font-family: "Poppins", sans-serif;
-    animation: fadeIn 0.5s ease-in-out;
+.subtitle {
+    color: #7f8c8d;
+    font-size: 12px; /* Reduced font size */
+    margin-bottom: 5px; /* Reduced margin */
 }
 
-/* Success Message */
-.alert-success {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
+.subtitle a {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: 500;
 }
 
-/* Error / Danger Message */
-.alert-error,
-.alert-danger {
-    background-color: #f8d7da;
+.subtitle a:hover {
+    text-decoration: underline;
+}
+
+.names {
+    display: flex;
+    gap: 10px; /* Reduced gap */
+    flex-wrap: wrap;
+}
+
+.field-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 2px; /* Reduced gap between input and error */
+}
+
+form input {
+    width: 100%;
+    padding: 8px 12px; /* Reduced padding */
+    border: 1px solid #3498db;
+    border-radius: 6px; /* Slightly smaller radius */
+    font-size: 13px; /* Reduced font size */
+    color: #2c3e50;
+    background: #f9fbfc;
+    transition: all 0.3s ease;
+}
+
+form input:focus {
+    border-color: #3498db;
+    background: white;
+    outline: none;
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+}
+
+.error-message {
     color: #721c24;
-    border: 1px solid #f5c6cb;
+    font-size: 11px; /* Reduced font size */
+    margin-top: 2px; /* Reduced margin */
+    line-height: 1.1; /* Tighter line height */
+    max-height: 24px; /* Limit error height */
+    overflow: hidden; /* Truncate if too long */
+    text-overflow: ellipsis; /* Add ellipsis if truncated */
 }
 
-/* Warning Message */
-.alert-warning {
-    background-color: #fff3cd;
-    color: #856404;
-    border: 1px solid #ffeeba;
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Reduced gap */
+    color: #7f8c8d;
+    font-size: 12px; /* Reduced font size */
 }
 
-/* Info Message */
-.alert-info {
-    background-color: #d1ecf1;
-    color: #0c5460;
-    border: 1px solid #bee5eb;
+input[type="checkbox"] {
+    width: 16px; /* Reduced size */
+    height: 16px;
+    cursor: pointer;
 }
 
-/* Fade-out Animation */
-.fade-out {
-    opacity: 0;
-    transition: opacity 0.5s ease-out;
+form button {
+    padding: 10px; /* Reduced padding */
+    background: #3498db;
+    border: none;
+    border-radius: 6px; /* Slightly smaller radius */
+    color: white;
+    font-size: 14px; /* Reduced font size */
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-/* Animations */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
+form button:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        height: auto; /* Allow height to adjust on smaller screens */
     }
+    
+    .inner-container1 {
+        width: 100%;
+        height: 300px;
+    }
+    
+    .inner-container2 {
+        width: 100%;
+        height: auto;
+        padding: 15px; /* Further reduced padding */
+    }
+    
+    form h1 {
+        font-size: 20px; /* Further reduced */
+    }
+    
+    .names {
+        flex-direction: column;
+        gap: 8px; /* Reduced gap */
+    }
+}
 
-    to {
-        opacity: 1;
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+    
+    .inner-container1 h2 {
+        padding-left: 20px;
+        font-size: 12px;
+    }
+    
+    form {
+        gap: 6px; /* Further reduced gap */
+    }
+    
+    form button {
+        font-size: 12px; /* Further reduced */
     }
 }

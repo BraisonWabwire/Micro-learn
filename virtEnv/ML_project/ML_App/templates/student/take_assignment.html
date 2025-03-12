@@ -9,6 +9,10 @@
 </head>
 <body>
     <div class="container">
+    {% if error %}
+        <p class="error">{{ error }}</p>
+        <a href="{% url 'course_content' course_id=assignment.course.course_id %}" class="btn btn-danger">Back to Course</a>
+    {% else %}
         <h1>{{ assignment.title }}</h1>
         <form method="post" action="{% url 'take_assignment' assignment_id=assignment.id %}">
             {% csrf_token %}
@@ -26,6 +30,7 @@
             <button type="submit" class="btn btn-primary">Submit Assignment</button>
         </form>
         <a href="{% url 'course_content' course_id=assignment.course.course_id %}" class="btn btn-danger">Back to Course</a>
+    {% endif %}
     </div>
 </body>
 </html>

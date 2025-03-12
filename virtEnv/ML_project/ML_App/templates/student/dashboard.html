@@ -9,7 +9,9 @@
     <link rel="stylesheet" href="{% static 'css/student_dashboard.css' %}">
     <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
     <script src="{% static 'javascript/student_dashboard.js' %}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js" integrity="sha512-L0Shl7nXXzIlBSUUPpxrokqq4ojqgZFQczTYlGjzONGTDAcLremjwaWv5A+EDLnxhQzY5xUZPWLOLqYRkY0Cbw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js"
+        integrity="sha512-L0Shl7nXXzIlBSUUPpxrokqq4ojqgZFQczTYlGjzONGTDAcLremjwaWv5A+EDLnxhQzY5xUZPWLOLqYRkY0Cbw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 
 <body>
@@ -64,6 +66,13 @@
             </div>
             <div class="notification">
                 <a href="#"><i class="ph ph-bell-ringing"></i></a>
+                {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                    <p class="{{ message.tags }}">{{ message }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
                 <div class="tutorial"><a href="{% url 'completed_courses' %}">Completed Courses</a></div>
             </div>
         </div>
@@ -186,16 +195,16 @@
                         </tr>
                     </thead>
                     <tbody>
+                        {% for result in assignment_results %}
                         <tr>
-                            {% for result in assignment_results %}
                             <td>{{ result.course_title }}</td>
                             <td>{{ result.assignment_title }}</td>
                             <td>{{ result.score }}</td>
                             <td>{{ result.total }}</td>
                             <td>{{ result.percentage|floatformat:2 }}%</td>
                             <td>{{ result.grade }}</td>
-                            {% endfor %}
                         </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
                 {% else %}
@@ -212,8 +221,20 @@
         </div>
 
     </div>
-    
-
 </body>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let messageBox = document.querySelector(".messages");
+
+        if (messageBox) {
+            messageBox.style.display = "block"; // Show message
+
+            // Hide after 5 seconds
+            setTimeout(function () {
+                messageBox.style.display = "none";
+            }, 5000);
+        }
+    });
+</script>
 
 </html>

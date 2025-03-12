@@ -150,3 +150,11 @@ textarea {
     font-weight: bold;
     color: green;
 }
+
+a{
+    text-decoration: none;
+}
+i{
+    font-weight: 500;
+    font-size: 16px;
+}
