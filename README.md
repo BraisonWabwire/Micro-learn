@@ -39,5 +39,5 @@ Micro-Learn is a Django-based e-learning platform that provides a comprehensive 
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/yourusername/micro-learn.git
+   https://github.com/BraisonWabwire/Micro-learn.git
    cd micro-learn
