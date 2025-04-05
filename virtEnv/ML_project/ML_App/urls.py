@@ -33,6 +33,8 @@ urlpatterns = [
 
     # Other urls
     path('privacy-policy/', views.privacy_policy, name='privacy_policy'),
+    path('report/', views.generate_student_report, name='student_report'),
+    path('student/certificate/<int:course_id>/', views.generate_certificate, name='generate_certificate'),
 
 ]   
 

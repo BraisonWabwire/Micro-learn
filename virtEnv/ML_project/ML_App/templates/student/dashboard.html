@@ -43,12 +43,15 @@
             </div>
             <div class="links">
                 <i class="ph ph-chart-line-up"></i>
-                <a href="#" onclick="showContent(event,'performance-container')"> Performance</a>
+                <a href="#" onclick="showContent(event,'performance-container')"> Reports</a>
             </div>
 
         </div>
         <div class="subnav3">
-
+            <div class="links">
+                <!-- <i class="ph ph-chart-line-up"></i> -->
+                <!-- <a href="#"> Generate report</a> -->
+            </div>
         </div>
         <div class="subnav4">
             <i class="ph ph-power"></i>
@@ -213,10 +216,19 @@
             </div>
         </div>
         <!-- Performance design -->
+        <!-- Add this to your student_dashboard.html or a separate template -->
         <div class="performance-container" id="performance-container">
-            <h2>Student's Performance Tacking</h2>
-            <div style="width: 300px; height: 300px;">
-                <canvas id="courseProgressChart"></canvas>
+            <div class="report-card">
+                <div class="report-header">
+                    <h2 class="report-title">Your Academic Report</h2>
+                    <p class="report-subtitle">Download your detailed performance summary</p>
+                </div>
+                <div class="report-action">
+                    <a href="{% url 'student_report' %}" class="report-btn">
+                        <span class="btn-text">Download PDF</span>
+                        <span class="btn-icon"><i class="fas fa-download"></i></span>
+                    </a>
+                </div>
             </div>
         </div>
 

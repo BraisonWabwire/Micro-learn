@@ -795,3 +795,225 @@ def calculate_assignment_score(student_assignment):
 # Other pages
 def privacy_policy(request):
     return render(request, 'privacy_policy.html')
+
+
+# Code for generating students Report
+# views.py
+from django.http import FileResponse
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from io import BytesIO
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+
+
+# Add this new view
+@login_required(login_url='student_login')
+def generate_student_report(request):
+    # Ensure user is a student
+    profile = get_object_or_404(Profile, user=request.user)
+    if profile.is_instructor:
+        messages.error(request, "Only students can generate reports.")
+        return redirect('student_login')
+
+    # Create a buffer for the PDF
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    styles = getSampleStyleSheet()
+    
+    # Custom styles
+    title_style = styles['Heading1']
+    subtitle_style = styles['Heading2']
+    normal_style = ParagraphStyle(
+        'Normal',
+        parent=styles['Normal'],
+        fontSize=10,
+        leading=12
+    )
+
+    # Content elements
+    elements = []
+
+    # Title
+    elements.append(Paragraph("Student Academic Report", title_style))
+    elements.append(Spacer(1, 12))
+    
+    # Student Info
+    student_info = f"""
+    Student Name: {request.user.get_full_name() or request.user.username}<br/>
+    Email: {request.user.email}<br/>
+    Date: {timezone.now().strftime('%B %d, %Y')}
+    """
+    elements.append(Paragraph(student_info, normal_style))
+    elements.append(Spacer(1, 12))
+
+    # Course Progress Section
+    elements.append(Paragraph("Course Progress", subtitle_style))
+    elements.append(Spacer(1, 6))
+
+    # Get enrolled courses and progress
+    enrolled_courses = Enrollment.objects.filter(student=request.user)
+    course_data = [["Course Title", "Progress", "Status"]]
+    
+    for enrollment in enrolled_courses:
+        progress = Progress.objects.filter(student=request.user, course=enrollment.course).first()
+        progress_percentage = progress.calculate_progress_percentage() if progress else 0
+        status = "Completed" if progress_percentage == 100 else "In Progress"
+        course_data.append([
+            enrollment.course.title,
+            f"{progress_percentage:.1f}%",
+            status
+        ])
+
+    # Create course table
+    course_table = Table(course_data)
+    course_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 12),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+    ]))
+    elements.append(course_table)
+    elements.append(Spacer(1, 12))
+
+    # Assignment Performance Section
+    elements.append(Paragraph("Assignment Performance", subtitle_style))
+    elements.append(Spacer(1, 6))
+
+    # Get assignment data
+    student_assignments = StudentAssignment.objects.filter(student=request.user)
+    assignment_data = [["Course", "Assignment", "Score", "Grade"]]
+    
+    for sa in student_assignments:
+        score = sa.score if sa.score is not None else 0
+        percentage = (score / sa.assignment.max_score) * 100
+        grade = assign_grade(percentage)
+        assignment_data.append([
+            sa.assignment.course.title,
+            sa.assignment.title,
+            f"{score}/{sa.assignment.max_score}",
+            grade
+        ])
+
+    # Create assignment table
+    assignment_table = Table(assignment_data)
+    assignment_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 12),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+    ]))
+    elements.append(assignment_table)
+
+    # Build the PDF
+    doc.build(elements)
+    
+    # Prepare the response
+    buffer.seek(0)
+    filename = f"student_report_{request.user.username}_{timezone.now().strftime('%Y%m%d')}.pdf"
+    response = FileResponse(buffer, as_attachment=True, filename=filename)
+    
+    return response
+
+
+
+# Generate Certificates
+# views.py
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+from django.http import FileResponse
+from io import BytesIO
+import os
+
+@login_required(login_url='student_login')
+def generate_certificate(request, course_id):
+    # Ensure user is a student
+    profile = get_object_or_404(Profile, user=request.user)
+    if profile.is_instructor:
+        messages.error(request, "Only students can generate certificates.")
+        return redirect('student_login')
+
+    # Get the course and verify completion
+    course = get_object_or_404(Course, course_id=course_id)
+    progress = Progress.objects.filter(student=request.user, course=course).first()
+    student_assignments = StudentAssignment.objects.filter(student=request.user, assignment__course=course)
+
+    # Check if course is complete (100% progress and all assignments ≥ 7/10)
+    if not (progress and progress.calculate_progress_percentage() == 100 and
+            student_assignments.count() == course.assignments.count() and
+            all(sa.score >= 7 for sa in student_assignments)):
+        messages.error(request, "You must complete all requirements to generate a certificate.")
+        return redirect('student_dashboard')
+
+    # Create PDF buffer
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    styles = getSampleStyleSheet()
+
+    # Custom styles
+    title_style = ParagraphStyle('Title', fontSize=24, alignment=1, spaceAfter=20, textColor=colors.darkblue)
+    subtitle_style = ParagraphStyle('Subtitle', fontSize=16, alignment=1, spaceAfter=15, textColor=colors.black)
+    normal_style = ParagraphStyle('Normal', fontSize=12, alignment=1, spaceAfter=10)
+    signature_style = ParagraphStyle('Signature', fontSize=10, alignment=1)
+
+    # Content elements
+    elements = []
+
+    # Optional: Add a logo or border (place an image file in your static folder)
+    # logo_path = os.path.join(settings.STATIC_ROOT, 'images', 'certificate_logo.png')
+    # if os.path.exists(logo_path):
+    #     elements.append(Image(logo_path, width=2*inch, height=2*inch))
+    #     elements.append(Spacer(1, 0.25*inch))
+
+    # Certificate Header
+    elements.append(Paragraph("Certificate of Completion", title_style))
+    elements.append(Paragraph("Awarded by [Your Institution Name]", subtitle_style))
+    elements.append(Spacer(1, 0.5*inch))
+
+    # Student and Course Info
+    cert_body = f"""
+    This certifies that<br/>
+    <font size=16><b>{request.user.get_full_name() or request.user.username}</b></font><br/>
+    has successfully completed the course<br/>
+    <font size=14><b>{course.title}</b></font><br/>
+    on {timezone.now().strftime('%B %d, %Y')}
+    """
+    elements.append(Paragraph(cert_body, normal_style))
+    elements.append(Spacer(1, 0.5*inch))
+
+    # Instructor Signature
+    instructor = course.instructor.instructor_profile
+    signature = f"""
+    ___________________________<br/>
+    {instructor.name}<br/>
+    Instructor, {instructor.department}<br/>
+    Date: {timezone.now().strftime('%B %d, %Y')}
+    """
+    elements.append(Paragraph(signature, signature_style))
+    elements.append(Spacer(1, 0.25*inch))
+
+    # Certificate ID (for authenticity)
+    cert_id = f"Certificate ID: CERT-{course.course_id}-{request.user.id}-{timezone.now().strftime('%Y%m%d')}"
+    elements.append(Paragraph(cert_id, ParagraphStyle('CertID', fontSize=8, alignment=2)))
+
+    # Build the PDF
+    doc.build(elements)
+    buffer.seek(0)
+    
+    # Serve the PDF
+    filename = f"certificate_{course.title}_{request.user.username}.pdf"
+    return FileResponse(buffer, as_attachment=True, filename=filename)

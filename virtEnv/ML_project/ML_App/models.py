@@ -168,3 +168,23 @@ class StudentAnswer(models.Model):
 
     def __str__(self):
         return f"{self.student_assignment.student.username} - {self.question.text}"
+    
+
+from django.utils import timezone
+
+# models.py
+class Certificate(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='certificates')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='certificates')
+    issued_at = models.DateTimeField(auto_now_add=True)
+    certificate_id = models.CharField(max_length=20, unique=True, editable=False)
+
+    def save(self, *args, **kwargs):
+        if not self.certificate_id:
+            last_cert = Certificate.objects.order_by('-id').first()
+            num = int(last_cert.certificate_id.split('-')[-1]) + 1 if last_cert else 1
+            self.certificate_id = f"CERT-{timezone.now().strftime('%Y%m%d')}-{num:04d}"
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Certificate for {self.student.username} - {self.course.title}"
