@@ -1,0 +1,266 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.container {
+    width: 100%;
+    max-width: 1000px;
+    height: 600px; /* Fixed height */
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-wrap: wrap;
+    overflow: hidden; /* No scrolling on container */
+}
+
+.inner-container1 {
+    width: 50%;
+    position: relative;
+    overflow: hidden;
+    height: 100%; /* Match container height */
+}
+
+.inner-container1 img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.inner-container1:hover img {
+    transform: scale(1.05);
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.6));
+}
+
+.inner-container1 h2 {
+    position: absolute;
+    bottom: 30px;
+    left: 30px;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: capitalize;
+    z-index: 2;
+    font-family: "Inter", serif;
+    padding-left: 100px;
+}
+
+.home {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: #ffffff;
+    padding: 8px 16px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.home a {
+    color: #2c3e50;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.home span {
+    color: #3498db;
+    font-size: 18px;
+}
+
+.home:hover {
+    background: #3498db;
+    transform: translateY(-2px);
+}
+
+.home:hover a { color: white; }
+.home:hover span { color: white; }
+
+.inner-container2 {
+    width: 50%;
+    padding: 20px; /* Reduced padding */
+    background: white;
+    height: 100%; /* Match container height */
+    overflow: hidden; /* No scrolling here either */
+    display: flex;
+    flex-direction: column;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* Further reduced gap */
+    flex-grow: 1;
+    justify-content: space-between; /* Distribute space */
+    height: 100%; /* Ensure form fits container */
+}
+
+form h1 {
+    font-size: 24px; /* Reduced font size */
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 2px; /* Reduced margin */
+}
+
+.subtitle {
+    color: #7f8c8d;
+    font-size: 12px; /* Reduced font size */
+    margin-bottom: 5px; /* Reduced margin */
+}
+
+.subtitle a {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.subtitle a:hover {
+    text-decoration: underline;
+}
+
+.names {
+    display: flex;
+    gap: 10px; /* Reduced gap */
+    flex-wrap: wrap;
+}
+
+.field-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 2px; /* Reduced gap between input and error */
+}
+
+form input {
+    width: 100%;
+    padding: 8px 12px; /* Reduced padding */
+    border: 1px solid #3498db;
+    border-radius: 6px; /* Slightly smaller radius */
+    font-size: 13px; /* Reduced font size */
+    color: #2c3e50;
+    background: #f9fbfc;
+    transition: all 0.3s ease;
+}
+
+form input:focus {
+    border-color: #3498db;
+    background: white;
+    outline: none;
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+}
+
+.error-message {
+    color: #721c24;
+    font-size: 11px; /* Reduced font size */
+    margin-top: 2px; /* Reduced margin */
+    line-height: 1.1; /* Tighter line height */
+    max-height: 24px; /* Limit error height */
+    overflow: hidden; /* Truncate if too long */
+    text-overflow: ellipsis; /* Add ellipsis if truncated */
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Reduced gap */
+    color: #7f8c8d;
+    font-size: 12px; /* Reduced font size */
+}
+
+input[type="checkbox"] {
+    width: 16px; /* Reduced size */
+    height: 16px;
+    cursor: pointer;
+}
+
+form button {
+    padding: 10px; /* Reduced padding */
+    background: #3498db;
+    border: none;
+    border-radius: 6px; /* Slightly smaller radius */
+    color: white;
+    font-size: 14px; /* Reduced font size */
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+form button:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        height: auto; /* Allow height to adjust on smaller screens */
+    }
+    
+    .inner-container1 {
+        width: 100%;
+        height: 300px;
+    }
+    
+    .inner-container2 {
+        width: 100%;
+        height: auto;
+        padding: 15px; /* Further reduced padding */
+    }
+    
+    form h1 {
+        font-size: 20px; /* Further reduced */
+    }
+    
+    .names {
+        flex-direction: column;
+        gap: 8px; /* Reduced gap */
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+    
+    .inner-container1 h2 {
+        padding-left: 20px;
+        font-size: 12px;
+    }
+    
+    form {
+        gap: 6px; /* Further reduced gap */
+    }
+    
+    form button {
+        font-size: 12px; /* Further reduced */
+    }
+}

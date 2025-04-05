@@ -796,21 +796,19 @@ def calculate_assignment_score(student_assignment):
 def privacy_policy(request):
     return render(request, 'privacy_policy.html')
 
-
-# Code for generating students Report
 # views.py
 from django.http import FileResponse
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+from reportlab.pdfgen import canvas
 from io import BytesIO
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
-
-# Add this new view
 @login_required(login_url='student_login')
 def generate_student_report(request):
     # Ensure user is a student
@@ -821,43 +819,94 @@ def generate_student_report(request):
 
     # Create a buffer for the PDF
     buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=letter,
+        leftMargin=0.75*inch,
+        rightMargin=0.75*inch,
+        topMargin=1*inch,
+        bottomMargin=1*inch
+    )
     styles = getSampleStyleSheet()
-    
+
     # Custom styles
-    title_style = styles['Heading1']
-    subtitle_style = styles['Heading2']
+    title_style = ParagraphStyle(
+        'Title',
+        parent=styles['Heading1'],
+        fontSize=20,
+        leading=24,
+        alignment=1,  # Center
+        spaceAfter=20,
+        textColor=colors.darkblue
+    )
+    subtitle_style = ParagraphStyle(
+        'Subtitle',
+        parent=styles['Heading2'],
+        fontSize=14,
+        leading=18,
+        alignment=0,  # Left
+        spaceAfter=12,
+        textColor=colors.black
+    )
     normal_style = ParagraphStyle(
         'Normal',
         parent=styles['Normal'],
         fontSize=10,
-        leading=12
+        leading=14,
+        alignment=0,  # Left
+        spaceAfter=10
+    )
+    footer_style = ParagraphStyle(
+        'Footer',
+        parent=styles['Normal'],
+        fontSize=8,
+        alignment=1,  # Center
+        textColor=colors.grey
     )
 
     # Content elements
     elements = []
 
+    # Header function
+    def draw_header(canvas, doc):
+        canvas.saveState()
+        canvas.setFont('Helvetica', 12)
+        canvas.setFillColor(colors.darkblue)
+        canvas.drawString(0.75*inch, letter[1] - 0.5*inch, "Micro-Learn - Academic Report")
+        canvas.setStrokeColor(colors.grey)
+        canvas.setLineWidth(0.5)
+        canvas.line(0.75*inch, letter[1] - 0.75*inch, letter[0] - 0.75*inch, letter[1] - 0.75*inch)
+        canvas.restoreState()
+
+    # Footer function
+    def draw_footer(canvas, doc):
+        canvas.saveState()
+        page_num = canvas.getPageNumber()
+        footer_text = f"Page {page_num} | Generated on {timezone.now().strftime('%B %d, %Y')}"
+        canvas.setFont('Helvetica', 8)
+        canvas.setFillColor(colors.grey)
+        canvas.drawCentredString(letter[0]/2, 0.5*inch, footer_text)
+        canvas.restoreState()
+
     # Title
     elements.append(Paragraph("Student Academic Report", title_style))
-    elements.append(Spacer(1, 12))
-    
+    elements.append(Spacer(1, 0.25*inch))
+
     # Student Info
     student_info = f"""
-    Student Name: {request.user.get_full_name() or request.user.username}<br/>
-    Email: {request.user.email}<br/>
-    Date: {timezone.now().strftime('%B %d, %Y')}
+    <b>Student Name:</b> {request.user.get_full_name() or request.user.username}<br/>
+    <b>Email:</b> {request.user.email}<br/>
+    <b>Date:</b> {timezone.now().strftime('%B %d, %Y')}
     """
     elements.append(Paragraph(student_info, normal_style))
-    elements.append(Spacer(1, 12))
+    elements.append(Spacer(1, 0.25*inch))
 
     # Course Progress Section
     elements.append(Paragraph("Course Progress", subtitle_style))
-    elements.append(Spacer(1, 6))
+    elements.append(Spacer(1, 0.15*inch))
 
-    # Get enrolled courses and progress
     enrolled_courses = Enrollment.objects.filter(student=request.user)
     course_data = [["Course Title", "Progress", "Status"]]
-    
     for enrollment in enrolled_courses:
         progress = Progress.objects.filter(student=request.user, course=enrollment.course).first()
         progress_percentage = progress.calculate_progress_percentage() if progress else 0
@@ -868,29 +917,34 @@ def generate_student_report(request):
             status
         ])
 
-    # Create course table
-    course_table = Table(course_data)
+    course_table = Table(
+        course_data,
+        colWidths=[3.5*inch, 1.5*inch, 1.5*inch],  # Adjusted column widths
+        spaceBefore=10,
+        spaceAfter=10
+    )
     course_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.darkblue),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 12),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+        ('TOPPADDING', (0, 0), (-1, 0), 8),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.whitesmoke, colors.white]),
     ]))
     elements.append(course_table)
-    elements.append(Spacer(1, 12))
+    elements.append(Spacer(1, 0.25*inch))
 
     # Assignment Performance Section
     elements.append(Paragraph("Assignment Performance", subtitle_style))
-    elements.append(Spacer(1, 6))
+    elements.append(Spacer(1, 0.15*inch))
 
-    # Get assignment data
     student_assignments = StudentAssignment.objects.filter(student=request.user)
     assignment_data = [["Course", "Assignment", "Score", "Grade"]]
-    
     for sa in student_assignments:
         score = sa.score if sa.score is not None else 0
         percentage = (score / sa.assignment.max_score) * 100
@@ -902,23 +956,34 @@ def generate_student_report(request):
             grade
         ])
 
-    # Create assignment table
-    assignment_table = Table(assignment_data)
+    assignment_table = Table(
+        assignment_data,
+        colWidths=[2.5*inch, 2.5*inch, 1*inch, 1*inch],  # Adjusted column widths
+        spaceBefore=10,
+        spaceAfter=10
+    )
     assignment_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.darkblue),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 12),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+        ('TOPPADDING', (0, 0), (-1, 0), 8),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.whitesmoke, colors.white]),
     ]))
     elements.append(assignment_table)
 
-    # Build the PDF
-    doc.build(elements)
-    
+    # Build the PDF with header and footer
+    doc.build(
+        elements,
+        onFirstPage=lambda canvas, doc: (draw_header(canvas, doc), draw_footer(canvas, doc)),
+        onLaterPages=lambda canvas, doc: (draw_header(canvas, doc), draw_footer(canvas, doc))
+    )
+
     # Prepare the response
     buffer.seek(0)
     filename = f"student_report_{request.user.username}_{timezone.now().strftime('%Y%m%d')}.pdf"
@@ -927,17 +992,23 @@ def generate_student_report(request):
     return response
 
 
-
 # Generate Certificates
 # views.py
-from reportlab.lib.pagesizes import letter
+from django.http import FileResponse
 from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
-from django.http import FileResponse
+from reportlab.pdfgen import canvas
 from io import BytesIO
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from django.conf import settings
 import os
+
+
 
 @login_required(login_url='student_login')
 def generate_certificate(request, course_id):
@@ -961,59 +1032,135 @@ def generate_certificate(request, course_id):
 
     # Create PDF buffer
     buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=letter,
+        leftMargin=1*inch,
+        rightMargin=1*inch,
+        topMargin=1.5*inch,
+        bottomMargin=1*inch
+    )
     styles = getSampleStyleSheet()
 
     # Custom styles
-    title_style = ParagraphStyle('Title', fontSize=24, alignment=1, spaceAfter=20, textColor=colors.darkblue)
-    subtitle_style = ParagraphStyle('Subtitle', fontSize=16, alignment=1, spaceAfter=15, textColor=colors.black)
-    normal_style = ParagraphStyle('Normal', fontSize=12, alignment=1, spaceAfter=10)
-    signature_style = ParagraphStyle('Signature', fontSize=10, alignment=1)
+    title_style = ParagraphStyle(
+        'Title',
+        fontSize=28,
+        leading=32,
+        alignment=1,  # Center
+        spaceAfter=20,
+        textColor=colors.darkblue,
+        fontName='Helvetica-Bold'
+    )
+    subtitle_style = ParagraphStyle(
+        'Subtitle',
+        fontSize=16,
+        leading=20,
+        alignment=1,  # Center
+        spaceAfter=15,
+        textColor=colors.black
+    )
+    normal_style = ParagraphStyle(
+        'Normal',
+        fontSize=14,
+        leading=18,
+        alignment=1,  # Center
+        spaceAfter=15
+    )
+    signature_style = ParagraphStyle(
+        'Signature',
+        fontSize=12,
+        leading=14,
+        alignment=1,  # Center
+        spaceAfter=10,
+        textColor=colors.grey
+    )
+    cert_id_style = ParagraphStyle(
+        'CertID',
+        fontSize=9,
+        alignment=0,  # Left
+        textColor=colors.grey
+    )
 
     # Content elements
     elements = []
 
-    # Optional: Add a logo or border (place an image file in your static folder)
-    # logo_path = os.path.join(settings.STATIC_ROOT, 'images', 'certificate_logo.png')
-    # if os.path.exists(logo_path):
-    #     elements.append(Image(logo_path, width=2*inch, height=2*inch))
-    #     elements.append(Spacer(1, 0.25*inch))
+    # Header with Logo and Border
+    def draw_header_and_border(canvas, doc):
+        canvas.saveState()
+        # Draw border first (so logo appears on top)
+        canvas.setStrokeColor(colors.gold)
+        canvas.setLineWidth(2)
+        border_left = 0.75*inch
+        border_right = letter[0] - 0.75*inch
+        border_top = letter[1] - 0.75*inch
+        border_bottom = 0.75*inch
+        canvas.rect(border_left, border_bottom, border_right - border_left, border_top - border_bottom, fill=0)
+
+        # Draw logo inside the border, centered at the top
+        logo_path = os.path.join(settings.STATIC_ROOT, 'images', 'certificate_logo.png')
+        logo_width = 1.5*inch
+        logo_height = 1*inch
+        logo_x = letter[0]/2 - logo_width/2  # Center horizontally
+        logo_y = border_top - logo_height - 0.25*inch  # Inside border, 0.25 inch from top
+        if os.path.exists(logo_path):
+            canvas.drawImage(logo_path, logo_x, logo_y, width=logo_width, height=logo_height)
+        else:
+            canvas.setFont('Helvetica', 12)
+            canvas.setFillColor(colors.red)
+            canvas.drawCentredString(letter[0]/2, border_top - 0.5*inch, "Logo Missing")
+
+        canvas.restoreState()
 
     # Certificate Header
+    elements.append(Spacer(1, 1.5*inch))  # Increased space for logo inside border
     elements.append(Paragraph("Certificate of Completion", title_style))
-    elements.append(Paragraph("Awarded by [Your Institution Name]", subtitle_style))
-    elements.append(Spacer(1, 0.5*inch))
+    elements.append(Paragraph("Awarded by EduLearn Education", subtitle_style))
+    elements.append(Spacer(1, 0.75*inch))
 
     # Student and Course Info
     cert_body = f"""
-    This certifies that<br/>
-    <font size=16><b>{request.user.get_full_name() or request.user.username}</b></font><br/>
-    has successfully completed the course<br/>
-    <font size=14><b>{course.title}</b></font><br/>
-    on {timezone.now().strftime('%B %d, %Y')}
-    """
+This certifies that<br/>
+<font size=18 color='#0000FF'><b>{request.user.get_full_name() or request.user.username}</b></font><br/>
+has successfully completed the course<br/>
+<font size=16 color='#0000FF'><b>{course.title}</b></font><br/>
+on {timezone.now().strftime('%B %d, %Y')}
+"""
     elements.append(Paragraph(cert_body, normal_style))
-    elements.append(Spacer(1, 0.5*inch))
+    elements.append(Spacer(1, 0.75*inch))
 
-    # Instructor Signature
+    # Instructor Signature with image
     instructor = course.instructor.instructor_profile
-    signature = f"""
-    ___________________________<br/>
+    signature_img_path = os.path.join(settings.STATIC_ROOT, 'images', 'signatures', 'signature.jpg')
+
+    # Add signature image
+    if os.path.exists(signature_img_path):
+        elements.append(Image(signature_img_path, width=2*inch, height=1*inch))
+    else:
+        elements.append(Paragraph("Signature Missing", signature_style))
+
+    # Instructor info below the signature image
+    instructor_info = f"""
     {instructor.name}<br/>
     Instructor, {instructor.department}<br/>
     Date: {timezone.now().strftime('%B %d, %Y')}
     """
-    elements.append(Paragraph(signature, signature_style))
-    elements.append(Spacer(1, 0.25*inch))
+    elements.append(Paragraph(instructor_info, signature_style))
 
-    # Certificate ID (for authenticity)
+    elements.append(Spacer(1, 0.5*inch))
+
+    # Certificate ID
     cert_id = f"Certificate ID: CERT-{course.course_id}-{request.user.id}-{timezone.now().strftime('%Y%m%d')}"
-    elements.append(Paragraph(cert_id, ParagraphStyle('CertID', fontSize=8, alignment=2)))
+    elements.append(Paragraph(cert_id, cert_id_style))
 
-    # Build the PDF
-    doc.build(elements)
-    buffer.seek(0)
-    
+    # Build the PDF with header and border
+    doc.build(
+        elements,
+        onFirstPage=draw_header_and_border,
+        onLaterPages=draw_header_and_border
+    )
+
     # Serve the PDF
+    buffer.seek(0)
     filename = f"certificate_{course.title}_{request.user.username}.pdf"
     return FileResponse(buffer, as_attachment=True, filename=filename)

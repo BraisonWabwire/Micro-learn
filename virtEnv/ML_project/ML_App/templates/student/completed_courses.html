@@ -4,13 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enrolled Courses</title>
+    <title>Completed Courses</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         body {
             background-color: #f4f6f9;
-            padding-top: 60px; /* To prevent content from being hidden under fixed navbar */
+            padding-top: 80px; /* Adjusted for fixed navbar */
         }
 
         /* Fixed Navbar */
@@ -28,14 +28,12 @@
             z-index: 1000;
         }
 
-        /* Title Styling */
         .navbar-title {
             font-size: 18px;
             font-weight: bold;
             color: #333;
         }
 
-        /* Search Bar */
         .search-container {
             display: flex;
             align-items: center;
@@ -58,7 +56,6 @@
             margin-right: 8px;
         }
 
-        /* Exit Button */
         .exit-button {
             background-color: #28a745;
             color: white;
@@ -90,7 +87,7 @@
             background: white;
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease-in-out;
-            min-height: 300px;
+            min-height: 340px; /* Adjusted for layout */
         }
         .course-card:hover {
             transform: scale(1.02);
@@ -101,35 +98,56 @@
             object-fit: cover;
         }
         .course-card .card-body {
-            padding: 10px;
+            padding: 15px;
         }
         .course-card h3 {
             font-size: 16px;
             font-weight: bold;
-            /* margin-bottom: 3px; */
+            margin-bottom: 8px;
         }
         .course-card h4 {
             font-size: 12px;
             color: #555;
+            margin-bottom: 6px;
         }
-        .resume {
+
+        /* Progress and Buttons */
+        .progress-text {
+            margin-top: 10px;
+        }
+        .button-container {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start; /* Align buttons to the left */
             align-items: center;
-            margin-top: 5px;
+            margin-top: 10px;
+            gap: 10px; /* Space between buttons */
         }
-        .resume a {
+        .button-container a {
             text-decoration: none;
             font-weight: bold;
-            background-color: #007bff;
-            color: white;
-            padding: 6px 10px;
+            padding: 6px 12px;
             border-radius: 5px;
             font-size: 12px;
             transition: background 0.3s;
+            white-space: nowrap;
         }
-        .resume a:hover {
+        .review-btn {
+            background-color: #007bff;
+            color: white;
+        }
+        .review-btn:hover {
             background-color: #0056b3;
+        }
+        .certificate-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        .certificate-btn:hover {
+            background-color: #218838;
+            color: white;
+        }
+        .certificate-btn i {
+            margin-right: 5px;
         }
 
         /* Make 4 cards per row */
@@ -142,10 +160,28 @@
             .course-item {
                 width: 50%;
             }
+            .button-container {
+                flex-wrap: wrap; /* Allow wrapping if needed */
+            }
         }
         @media (max-width: 576px) {
             .course-item {
                 width: 100%;
+            }
+            .navbar {
+                padding: 10px 20px;
+            }
+            .search-container {
+                width: 200px;
+            }
+            .button-container {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+            .button-container a {
+                width: 100%;
+                text-align: center;
             }
         }
     </style>
@@ -154,10 +190,10 @@
 
 <!-- Fixed Navbar -->
 <div class="navbar">
-    <div class="navbar-title">Courses Completed</div>
+    <div class="navbar-title">Completed Courses</div>
     <div class="search-container">
         <i class="fas fa-search"></i>
-        <input type="text" id="searchInput" placeholder="Search courses by title..." onkeyup="filterCourses()">
+        <input type="text" id="searchInput" placeholder="Search courses..." onkeyup="filterCourses()">
     </div>
     <a href="{% url 'student_dashboard' %}" class="exit-button">
         <i class="fas fa-sign-out-alt"></i> Exit
@@ -175,18 +211,25 @@
                             <h3 class="course-title">{{ course_data.course.title }}</h3>
                             <h4><strong>Instructor:</strong> {{ course_data.course.instructor.username }}</h4>
                             <h4><strong>Description:</strong> {{ course_data.course.description }}</h4>
-                            <div class="resume">
+                            <div class="progress-text">
                                 <h4><strong>Progress:</strong> {{ course_data.progress_percentage|floatformat:0 }}%</h4>
-                                <a href="{% url 'course_content' course_data.course.course_id %}">
+                            </div>
+                            <div class="button-container">
+                                <a href="{% url 'course_content' course_data.course.course_id %}" class="review-btn">
                                     Review Course
                                 </a>
-                            </div> 
+                                <a href="{% url 'generate_certificate' course_data.course.course_id %}" class="certificate-btn">
+                                    <i class="fas fa-certificate"></i> Download Certificate
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
             {% endfor %}
         {% else %}
-            <h3>You have not completed any courses yet.</h3>
+            <div class="col-12 text-center">
+                <h3>You have not completed any courses yet.</h3>
+            </div>
         {% endif %}
     </div>
 </div>
