@@ -31,7 +31,7 @@ Micro-Learn is a Django-based e-learning platform that provides a comprehensive 
 
 - **Backend**: Django (Python)
 - **Frontend**: HTML, CSS, JavaScript, Bootstrap
-- **Database**: SQLite (default, can be configured for PostgreSQL/MySQL)
+- **Database**: MYSQL
 - **Reporting**: ReportLab for PDF generation
 - **Authentication**: Django's built-in auth system with custom role management
 
