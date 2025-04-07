@@ -1009,6 +1009,16 @@ from django.conf import settings
 import os
 
 
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+
+# Register custom font
+font_path = r"C:/Micro-learn/virtEnv/ML_project/ML_App/static/fonts/EnglishTowne.ttf"
+custom_font_name = "EnglishTowne"
+if os.path.exists(font_path):
+    pdfmetrics.registerFont(TTFont(custom_font_name, font_path))
+else:
+    custom_font_name = "Helvetica-Bold"  # fallback
 
 @login_required(login_url='student_login')
 def generate_certificate(request, course_id):
@@ -1119,13 +1129,13 @@ def generate_certificate(request, course_id):
     elements.append(Spacer(1, 0.75*inch))
 
     # Student and Course Info
-    cert_body = f"""
-This certifies that<br/>
-<font size=18 color='#0000FF'><b>{request.user.get_full_name() or request.user.username}</b></font><br/>
-has successfully completed the course<br/>
-<font size=16 color='#0000FF'><b>{course.title}</b></font><br/>
-on {timezone.now().strftime('%B %d, %Y')}
-"""
+    cert_body =  f"""
+    This certifies that<br/>
+    <font name="{custom_font_name}" size="24" color="#0000FF"><b>{request.user.get_full_name() or request.user.username}</b></font><br/>
+    has successfully completed the course<br/>
+    <font size="16" color="#0000FF"><b>{course.title}</b></font><br/>
+    on {timezone.now().strftime('%B %d, %Y')}
+    """
     elements.append(Paragraph(cert_body, normal_style))
     elements.append(Spacer(1, 0.75*inch))
 
