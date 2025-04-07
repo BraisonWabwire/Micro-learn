@@ -1,6 +1,6 @@
 # Micro-Learn - E-Learning Platform
 
-![Micro-Learn Logo](static/images/logo.png)
+![Micro-Learn landing page](virtEnv/ML_project/staticfiles/images/image.png)
 
 Micro-Learn is a Django-based e-learning platform that provides a comprehensive learning management system with features for students, instructors, and administrators.
 
@@ -31,7 +31,7 @@ Micro-Learn is a Django-based e-learning platform that provides a comprehensive 
 
 - **Backend**: Django (Python)
 - **Frontend**: HTML, CSS, JavaScript, Bootstrap
-- **Database**: SQLite (default, can be configured for PostgreSQL/MySQL)
+- **Database**: MYSQL
 - **Reporting**: ReportLab for PDF generation
 - **Authentication**: Django's built-in auth system with custom role management
 
@@ -39,5 +39,5 @@ Micro-Learn is a Django-based e-learning platform that provides a comprehensive 
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/yourusername/micro-learn.git
+   https://github.com/BraisonWabwire/Micro-learn.git
    cd micro-learn
