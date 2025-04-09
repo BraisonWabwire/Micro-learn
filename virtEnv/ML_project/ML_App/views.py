@@ -1346,3 +1346,105 @@ def generate_instructor_student_report(request):
     buffer.seek(0)
     filename = f"instructor_student_report_{instructor.username}_{timezone.now().strftime('%Y%m%d')}.pdf"
     return FileResponse(buffer, as_attachment=True, filename=filename)
+
+from django.http import FileResponse
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+from io import BytesIO
+from django.utils import timezone
+
+def generate_admin_user_report(request):
+    # Hardcoded admin check (since admin_login uses hardcoded credentials)
+    if not request.session.get('admin_logged_in', False):
+        # Assuming you set this session variable in admin_login upon successful login
+        messages.error(request, "You must be logged in as an administrator to generate this report.")
+        return redirect('admin_login')
+
+    # Fetch all users and their profiles
+    all_users = User.objects.all().select_related('profile', 'instructor_profile')
+    total_users = all_users.count()
+    total_instructors = Instructor.objects.count()
+    total_students = total_users - total_instructors
+
+    # Create PDF buffer
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=letter,
+        leftMargin=0.75*inch,
+        rightMargin=0.75*inch,
+        topMargin=1*inch,
+        bottomMargin=1*inch
+    )
+    styles = getSampleStyleSheet()
+
+    # Custom styles
+    title_style = ParagraphStyle('Title', parent=styles['Heading1'], fontSize=20, alignment=1, textColor=colors.darkblue)
+    subtitle_style = ParagraphStyle('Subtitle', parent=styles['Heading2'], fontSize=14, alignment=0, spaceAfter=12)
+    normal_style = ParagraphStyle('Normal', parent=styles['Normal'], fontSize=10, leading=14)
+
+    # Content elements
+    elements = []
+
+    # Header
+    def draw_header(canvas, doc):
+        canvas.saveState()
+        canvas.setFont('Helvetica', 12)
+        canvas.setFillColor(colors.darkblue)
+        canvas.drawString(0.75*inch, letter[1] - 0.5*inch, "Micro-Learn - Admin User Report")
+        canvas.line(0.75*inch, letter[1] - 0.75*inch, letter[0] - 0.75*inch, letter[1] - 0.75*inch)
+        canvas.restoreState()
+
+    # Footer
+    def draw_footer(canvas, doc):
+        canvas.saveState()
+        page_num = canvas.getPageNumber()
+        footer_text = f"Page {page_num} | Generated on {timezone.now().strftime('%B %d, %Y')}"
+        canvas.setFont('Helvetica', 8)
+        canvas.setFillColor(colors.grey)
+        canvas.drawCentredString(letter[0]/2, 0.5*inch, footer_text)
+        canvas.restoreState()
+
+    # Title and Summary
+    elements.append(Paragraph("Admin User Report", title_style))
+    elements.append(Spacer(1, 0.25*inch))
+    summary_info = f"""
+    <b>Total Users:</b> {total_users}<br/>
+    <b>Total Instructors:</b> {total_instructors}<br/>
+    <b>Total Students:</b> {total_students}<br/>
+    <b>Date:</b> {timezone.now().strftime('%B %d, %Y')}
+    """
+    elements.append(Paragraph(summary_info, normal_style))
+    elements.append(Spacer(1, 0.25*inch))
+
+    # User Details Table
+    user_data = [["Username", "Full Name", "Email", "Role", "Department"]]
+    for user in all_users:
+        full_name = user.get_full_name() or "N/A"
+        role = "Instructor" if hasattr(user, 'profile') and user.profile.is_instructor else "Student"
+        department = user.instructor_profile.department if hasattr(user, 'instructor_profile') else "N/A"
+        user_data.append([user.username, full_name, user.email, role, department])
+
+    user_table = Table(user_data, colWidths=[1.5*inch, 1.5*inch, 2*inch, 1*inch, 1*inch])
+    user_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.darkblue),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.whitesmoke, colors.white]),
+    ]))
+    elements.append(user_table)
+
+    # Build PDF
+    doc.build(elements, onFirstPage=lambda c, d: (draw_header(c, d), draw_footer(c, d)),
+              onLaterPages=lambda c, d: (draw_header(c, d), draw_footer(c, d)))
+
+    # Serve PDF
+    buffer.seek(0)
+    filename = f"admin_user_report_{timezone.now().strftime('%Y%m%d')}.pdf"
+    return FileResponse(buffer, as_attachment=True, filename=filename)
