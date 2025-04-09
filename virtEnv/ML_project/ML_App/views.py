@@ -248,26 +248,22 @@ def logoutUser(request):
 # Admin views
 def admin_login(request):
     if request.method == "POST":
-        # Get the submitted username and password
         username = request.POST['username']
         password = request.POST['password']
-        
-        # Hardcoded admin credentials
         if username == "administrator" and password == "admin01":
+            request.session['admin_logged_in'] = True  # Set session variable
             messages.success(request, "Login successful!")
-            return redirect('admin_dashboard')  # Redirect to the admin dashboard or another page
+            return redirect('admin_dashboard')
         else:
             messages.error(request, "Invalid username or password.")
     context = {
         'title': 'admin-login',
-       
     }
-    
-    return render(request, 'admin/admin_login.html',context)
+    return render(request, 'admin/admin_login.html', context)
 
 # Log admin out
 def logoutAdmin(request):
-    logout(request)
+    request.session.flush()  # Clear session data
     return redirect('admin_login')
 
 # View for performing CRUD operations on instructor
@@ -1347,14 +1343,6 @@ def generate_instructor_student_report(request):
     filename = f"instructor_student_report_{instructor.username}_{timezone.now().strftime('%Y%m%d')}.pdf"
     return FileResponse(buffer, as_attachment=True, filename=filename)
 
-from django.http import FileResponse
-from reportlab.lib import colors
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch
-from io import BytesIO
-from django.utils import timezone
 
 def generate_admin_user_report(request):
     # Hardcoded admin check (since admin_login uses hardcoded credentials)
