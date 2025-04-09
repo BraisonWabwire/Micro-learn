@@ -36,6 +36,7 @@ urlpatterns = [
     path('report/', views.generate_student_report, name='student_report'),
     path('student/certificate/<int:course_id>/', views.generate_certificate, name='generate_certificate'),
     path('instructor/student-report/', views.generate_instructor_student_report, name='generate_instructor_student_report'),
+     path('admin_dash/user-report/', views.generate_admin_user_report, name='generate_admin_user_report'),
 
 ]   
 
