@@ -270,8 +270,10 @@ def logoutAdmin(request):
 
 # Admin dashboard view
 def admin_dashboard(request):
-    form = InstructorForm()  # Form for adding instructors
+    if not request.session.get('admin_logged_in', False):
+        return redirect('admin_login')
 
+    form = InstructorForm()
     if request.method == "POST":
         form = InstructorForm(request.POST)
         if form.is_valid():
@@ -279,20 +281,17 @@ def admin_dashboard(request):
             messages.success(request, "Instructor added successfully.")
             return redirect('admin_dashboard')
 
-    # Fetch all instructors
     instructors = Instructor.objects.all()
-    # Fetch all students (users who are not instructors)
     students = User.objects.filter(profile__is_instructor=False)
-
-    # Fetch all users
     all_users = User.objects.all()
 
     context = {
         'title': 'admin-dashboard',
         'form': form,
         'instructors': instructors,
-        'students': students,  # Add students to context
-        'users': all_users,  # Add users to context
+        'students': students,
+        'users': all_users,
+        'total_users': all_users.count(),  # Add total users for display
     }
     return render(request, 'admin/admin_dashboard.html', context)
 
