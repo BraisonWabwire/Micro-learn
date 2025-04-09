@@ -401,62 +401,80 @@ def instructor_dashboard(request):
     try:
         profile = Profile.objects.get(user=request.user)
     except Profile.DoesNotExist:
-        return redirect('homepage')  # Redirect to home or another appropriate page
-    
+        return redirect('homepage')
 
-    # If the user is not an instructor, redirect them based on their role
     if not profile.is_instructor:
-        return redirect('student_dashboard')  # Redirect to student dashboard
+        return redirect('student_dashboard')
 
-    # If the user is an instructor, proceed to the instructor dashboard
     instructor = request.user
-
-    # Get all courses associated with this instructor
     courses = Course.objects.filter(instructor=instructor)
-
-     # Get enrolled students for these courses
     enrollments = Enrollment.objects.filter(course__in=courses).select_related('student', 'course')
 
-     # Fetch progress data for each enrolled student
+    # Aggregate student data for the report
+    student_data = {}
+    for enrollment in enrollments:
+        student = enrollment.student
+        if student not in student_data:
+            student_data[student] = {
+                'enrolled_courses': [],
+                'progress': {},
+                'assignments': []
+            }
+        student_data[student]['enrolled_courses'].append(enrollment.course)
+        
+        # Progress details
+        progress = Progress.objects.filter(student=student, course=enrollment.course).first()
+        if progress:
+            student_data[student]['progress'][enrollment.course.title] = progress.calculate_progress_percentage()
+        
+        # Assignment details
+        student_assignments = StudentAssignment.objects.filter(
+            student=student, assignment__course=enrollment.course
+        )
+        for sa in student_assignments:
+            score = sa.score if sa.score is not None else 0
+            percentage = (score / sa.assignment.max_score) * 100
+            grade = assign_grade(percentage)
+            student_data[student]['assignments'].append({
+                'course': sa.assignment.course.title,
+                'title': sa.assignment.title,
+                'score': f"{score}/{sa.assignment.max_score}",
+                'percentage': percentage,
+                'grade': grade
+            })
 
-    #  Assignment form
-     # Handle assignment and choices form submission
+    # Handle assignment form submission (unchanged)
     if request.method == "POST":
         assignment_form = AssignmentForm(request.POST)
-        choice_forms = [ChoiceForm(request.POST, prefix=str(i)) for i in range(4)]  # 4 choices
-
+        choice_forms = [ChoiceForm(request.POST, prefix=str(i)) for i in range(4)]
         if assignment_form.is_valid() and all(cf.is_valid() for cf in choice_forms):
             assignment = assignment_form.save(commit=False)
-            assignment.save()  # Save assignment first
-
+            assignment.save()
             for choice_form in choice_forms:
                 choice = choice_form.save(commit=False)
-                choice.assignment = assignment  # Assign choices to the assignment
+                choice.assignment = assignment
                 choice.save()
-
             return redirect('instructor_dashboard')
-
     else:
         assignment_form = AssignmentForm()
-        choice_forms = [ChoiceForm(prefix=str(i)) for i in range(4)]  # 4 empty choice forms
+        choice_forms = [ChoiceForm(prefix=str(i)) for i in range(4)]
 
-    assignmentsList= Assignment.objects.all()
+    assignmentsList = Assignment.objects.filter(course__in=courses)
 
     context = {
-        'title':'instructor_dashboard',
+        'title': 'instructor_dashboard',
         'instructor': instructor,
-        'username': request.user.username,  # Accessing the username
-        'email': request.user.email,        # Accessing the email
-        'courses': courses,  # Adding courses to the context
-        'enrollments': enrollments, 
+        'username': request.user.username,
+        'email': request.user.email,
+        'courses': courses,
+        'enrollments': enrollments,
+        'student_data': student_data,  # Pass student data to the template
         'assignment_form': assignment_form,
         'choice_forms': choice_forms,
-        'assignment_list': assignmentsList
-
+        'assignment_list': assignmentsList,
+        'total_students': len(student_data)  # Total number of unique students
     }
-
     return render(request, 'instructor/instructor_dashboard.html', context)
-
 
 
 @login_required(login_url='instructor_login')
@@ -1173,4 +1191,158 @@ def generate_certificate(request, course_id):
     # Serve the PDF
     buffer.seek(0)
     filename = f"certificate_{course.title}_{request.user.username}.pdf"
+    return FileResponse(buffer, as_attachment=True, filename=filename)
+
+
+
+from django.http import FileResponse
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+from io import BytesIO
+from django.utils import timezone
+
+@login_required(login_url='instructor_login')
+def generate_instructor_student_report(request):
+    # Verify instructor role
+    profile = get_object_or_404(Profile, user=request.user)
+    if not profile.is_instructor:
+        messages.error(request, "Only instructors can generate student reports.")
+        return redirect('instructor_login')
+
+    # Fetch instructor's courses and related student data
+    instructor = request.user
+    courses = Course.objects.filter(instructor=instructor)
+    enrollments = Enrollment.objects.filter(course__in=courses).select_related('student', 'course')
+
+    # Aggregate student data (similar to dashboard)
+    student_data = {}
+    for enrollment in enrollments:
+        student = enrollment.student
+        if student not in student_data:
+            student_data[student] = {
+                'enrolled_courses': [],
+                'progress': {},
+                'assignments': []
+            }
+        student_data[student]['enrolled_courses'].append(enrollment.course)
+        progress = Progress.objects.filter(student=student, course=enrollment.course).first()
+        if progress:
+            student_data[student]['progress'][enrollment.course.title] = progress.calculate_progress_percentage()
+        student_assignments = StudentAssignment.objects.filter(
+            student=student, assignment__course=enrollment.course
+        )
+        for sa in student_assignments:
+            score = sa.score if sa.score is not None else 0
+            percentage = (score / sa.assignment.max_score) * 100
+            grade = assign_grade(percentage)
+            student_data[student]['assignments'].append({
+                'course': sa.assignment.course.title,
+                'title': sa.assignment.title,
+                'score': f"{score}/{sa.assignment.max_score}",
+                'percentage': percentage,
+                'grade': grade
+            })
+
+    # Create PDF buffer
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=letter,
+        leftMargin=0.75*inch,
+        rightMargin=0.75*inch,
+        topMargin=1*inch,
+        bottomMargin=1*inch
+    )
+    styles = getSampleStyleSheet()
+
+    # Custom styles
+    title_style = ParagraphStyle('Title', parent=styles['Heading1'], fontSize=20, alignment=1, textColor=colors.darkblue)
+    subtitle_style = ParagraphStyle('Subtitle', parent=styles['Heading2'], fontSize=14, alignment=0, spaceAfter=12)
+    normal_style = ParagraphStyle('Normal', parent=styles['Normal'], fontSize=10, leading=14)
+
+    # Content elements
+    elements = []
+
+    # Header
+    def draw_header(canvas, doc):
+        canvas.saveState()
+        canvas.setFont('Helvetica', 12)
+        canvas.setFillColor(colors.darkblue)
+        canvas.drawString(0.75*inch, letter[1] - 0.5*inch, "Micro-Learn - Instructor Student Report")
+        canvas.line(0.75*inch, letter[1] - 0.75*inch, letter[0] - 0.75*inch, letter[1] - 0.75*inch)
+        canvas.restoreState()
+
+    # Footer
+    def draw_footer(canvas, doc):
+        canvas.saveState()
+        page_num = canvas.getPageNumber()
+        footer_text = f"Page {page_num} | Generated on {timezone.now().strftime('%B %d, %Y')}"
+        canvas.setFont('Helvetica', 8)
+        canvas.setFillColor(colors.grey)
+        canvas.drawCentredString(letter[0]/2, 0.5*inch, footer_text)
+        canvas.restoreState()
+
+    # Title and Instructor Info
+    elements.append(Paragraph("Instructor Student Report", title_style))
+    elements.append(Spacer(1, 0.25*inch))
+    instructor_info = f"""
+    <b>Instructor:</b> {instructor.get_full_name() or instructor.username}<br/>
+    <b>Email:</b> {instructor.email}<br/>
+    <b>Total Students:</b> {len(student_data)}<br/>
+    <b>Date:</b> {timezone.now().strftime('%B %d, %Y')}
+    """
+    elements.append(Paragraph(instructor_info, normal_style))
+    elements.append(Spacer(1, 0.25*inch))
+
+    # Student Details
+    for student, data in student_data.items():
+        elements.append(Paragraph(f"Student: {student.get_full_name() or student.username}", subtitle_style))
+        elements.append(Spacer(1, 0.15*inch))
+
+        # Enrolled Courses and Progress
+        course_data = [["Course Title", "Progress (%)"]]
+        for course in data['enrolled_courses']:
+            progress = data['progress'].get(course.title, 0)
+            course_data.append([course.title, f"{progress:.1f}"])
+        course_table = Table(course_data, colWidths=[4*inch, 2*inch])
+        course_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.darkblue),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ]))
+        elements.append(course_table)
+        elements.append(Spacer(1, 0.15*inch))
+
+        # Assignment Performance
+        assignment_data = [["Course", "Assignment", "Score", "Grade"]]
+        for assignment in data['assignments']:
+            assignment_data.append([
+                assignment['course'],
+                assignment['title'],
+                assignment['score'],
+                assignment['grade']
+            ])
+        assignment_table = Table(assignment_data, colWidths=[2*inch, 2*inch, 1*inch, 1*inch])
+        assignment_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.darkblue),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ]))
+        elements.append(assignment_table)
+        elements.append(Spacer(1, 0.25*inch))
+
+    # Build PDF
+    doc.build(elements, onFirstPage=lambda c, d: (draw_header(c, d), draw_footer(c, d)),
+              onLaterPages=lambda c, d: (draw_header(c, d), draw_footer(c, d)))
+
+    # Serve PDF
+    buffer.seek(0)
+    filename = f"instructor_student_report_{instructor.username}_{timezone.now().strftime('%Y%m%d')}.pdf"
     return FileResponse(buffer, as_attachment=True, filename=filename)
