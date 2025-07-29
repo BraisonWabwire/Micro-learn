@@ -12,7 +12,7 @@ Micro-Learn is a Django-based e-learning platform that provides a comprehensive 
 - Interactive assignments with automatic grading
 - Course completion certificates
 - Progress visualization with charts
-- Academic report generation
+- Academic report generation fpr students showing their grades
 - Course prerequisites enforcement
 
 ### Instructor Features
